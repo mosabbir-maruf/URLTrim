@@ -1,5 +1,14 @@
 import { urlSchema } from "../../lib/validation";
 import { generateShortCode, RESERVED_ROUTES } from "../../lib/short-code";
+import { verifyJWT } from "../../lib/jwt";
+
+function getCookie(request: Request, name: string): string | null {
+  const cookieHeader = request.headers.get("Cookie");
+  if (!cookieHeader) return null;
+  const match = cookieHeader.match(new RegExp(`(^| )${name}=([^;]+)`));
+  if (match) return match[2];
+  return null;
+}
 
 export const onRequestPost = async (context: any) => {
   try {
@@ -13,6 +22,17 @@ export const onRequestPost = async (context: any) => {
 
     if (!env.DB) {
       return new Response(JSON.stringify({ success: false, error: "Database not bound." }), { status: 500, headers: { "Content-Type": "application/json" } });
+    }
+
+    // Check Auth
+    let userId = null;
+    const token = getCookie(request, "auth_token");
+    if (token) {
+      const secret = env.JWT_SECRET || "default-secret-please-change";
+      const payload = await verifyJWT(token, secret);
+      if (payload && payload.sub) {
+        userId = payload.sub;
+      }
     }
 
     const db = env.DB;
@@ -52,9 +72,9 @@ export const onRequestPost = async (context: any) => {
     }
 
     await db.prepare(`
-      INSERT INTO links (id, code, original_url, clicks, created_at, expires_at, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, code, originalUrl, 0, createdAt, expiresAt, 1).run();
+      INSERT INTO links (id, code, original_url, clicks, created_at, expires_at, is_active, user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, code, originalUrl, 0, createdAt, expiresAt, 1, userId).run();
 
     let baseUrl = env.BASE_URL || "https://shrtn.pages.dev";
     // Strip trailing slash if present
