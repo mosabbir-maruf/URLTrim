@@ -64,14 +64,14 @@ export function UrlForm() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="Paste your long URL here..."
-          className="flex-1 bg-background/50 backdrop-blur-sm transform-gpu h-14 px-6 text-sm font-mono border-border/60 rounded-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-border/60 shadow-none transition-all"
+          className="flex-1 bg-background/50 backdrop-blur-sm transform-gpu h-12 sm:h-14 px-6 text-sm font-mono border-border/60 rounded-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-border/60 shadow-none transition-all"
           required
           disabled={isLoading}
         />
         <Button
           type="submit"
           disabled={isLoading || !url}
-          className="h-14 px-8 uppercase font-mono font-bold tracking-widest text-[11px] rounded-none bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50 transition-all shadow-none"
+          className="h-12 sm:h-14 w-full sm:w-auto px-8 uppercase font-mono font-bold tracking-widest text-[11px] rounded-none bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50 transition-all shadow-none"
         >
           {isLoading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : "Shorten"}
           {!isLoading && <span className="ml-2">→</span>}
