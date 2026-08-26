@@ -73,11 +73,14 @@ export async function POST(req: NextRequest) {
       shortUrl
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating short link:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error." },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ success: false, error: error?.message || "Internal server error." }),
+      { 
+        status: 500, 
+        headers: { "Content-Type": "application/json" } 
+      }
     );
   }
 }
