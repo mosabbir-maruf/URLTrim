@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   const fetchLinks = async () => {
     try {
-      const res = await fetch("/api/user/links");
+      const res = await fetch("/api/user/links", { credentials: "include" });
       if (res.status === 401) {
         router.push("/login");
         return;
@@ -58,6 +58,7 @@ export default function Dashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: newUrl }),
+        credentials: "include",
       });
       if (res.ok) {
         setNewUrl("");
@@ -75,7 +76,7 @@ export default function Dashboard() {
   const handleDelete = async (code: string) => {
     if (!confirm("Permanently delete this link?")) return;
     try {
-      const res = await fetch(`/api/user/links?code=${code}`, { method: "DELETE" });
+      const res = await fetch(`/api/user/links?code=${code}`, { method: "DELETE", credentials: "include" });
       if (res.ok) {
         setLinks(links.filter(l => l.code !== code));
       }
@@ -85,7 +86,7 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     router.push("/login");
   };
 
