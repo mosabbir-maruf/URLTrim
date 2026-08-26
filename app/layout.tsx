@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     siteName: "urltrim",
     images: [
       {
-        url: "/og-graph.webp",
+        url: "/opengraph.webp",
         width: 1200,
         height: 630,
         alt: "urltrim Mockup",

@@ -20,6 +20,10 @@
 
 </div>
 
+## 📸 Preview
+
+![urltrim Mockup](public/mockup.png)
+
 ## 🚀 Features
 
 - **Edge Network:** Global CDN resolution with milliseconds latency.
