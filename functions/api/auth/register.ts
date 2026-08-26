@@ -42,10 +42,11 @@ export const onRequestPost = async (context: any) => {
     const verifyToken = crypto.randomUUID();
     const createdAt = Math.floor(Date.now() / 1000);
 
-    // Insert user with is_verified = 0 and the verification token
+    // Insert user. If Resend is not configured, auto-verify (skips email verification).
+    const isVerified = resendApiKey ? 0 : 1;
     await env.DB.prepare(
       "INSERT INTO users (id, email, password_hash, role, created_at, is_verified, verification_token) VALUES (?, ?, ?, ?, ?, ?, ?)"
-    ).bind(id, email, hashedPassword, role, createdAt, 0, verifyToken).run();
+    ).bind(id, email, hashedPassword, role, createdAt, isVerified, verifyToken).run();
 
     // Send verification email via Resend (if API key is present)
     const resendApiKey = env.RESEND_API_KEY;
@@ -187,7 +188,9 @@ export const onRequestPost = async (context: any) => {
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: "Registered successfully! Please check your email to verify your account." 
+      message: resendApiKey
+        ? "Registered successfully! Please check your email to verify your account."
+        : "Registered successfully! Email verification is disabled, you can log in right away." 
     }), {
       status: 201,
       headers: { "Content-Type": "application/json" }
