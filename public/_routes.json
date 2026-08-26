@@ -1,8 +1,12 @@
 {
   "version": 1,
-  "include": ["/*"],
+  "include": ["/api/*", "/:code"],
   "exclude": [
     "/_next/*",
+    "/",
+    "/login",
+    "/register",
+    "/dashboard",
     "/*.svg",
     "/*.ico",
     "/*.png",
