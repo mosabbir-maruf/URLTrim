@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Copy, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowRight, Copy, CheckCircle2, AlertCircle, LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export function UrlForm() {
   const [url, setUrl] = useState("");
@@ -55,63 +57,54 @@ export function UrlForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-12 space-y-8">
-      <form onSubmit={handleSubmit} className="relative group">
-        <div className="absolute -inset-0.5 bg-neutral-200 dark:bg-neutral-800 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
-        <div className="relative flex items-center bg-white dark:bg-neutral-900 rounded-2xl p-2 border border-neutral-200 dark:border-neutral-800 shadow-sm focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100 transition-all">
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste your long URL here..."
-            className="flex-1 bg-transparent px-4 py-3 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none text-lg"
-            required
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !url}
-            className="ml-2 px-6 py-3 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 text-white dark:text-neutral-900 font-medium rounded-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Shorten"}
-            {!isLoading && <ArrowRight className="w-5 h-5" />}
-          </button>
-        </div>
+    <div className="w-full space-y-4">
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <Input
+          type="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Paste your long URL here..."
+          className="bg-background/50 backdrop-blur-sm h-10 px-4 text-sm"
+          required
+          disabled={isLoading}
+        />
+        <Button
+          type="submit"
+          disabled={isLoading || !url}
+          className="h-10 px-6 uppercase font-bold tracking-widest text-xs"
+        >
+          {isLoading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : "Shorten"}
+          {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
+        </Button>
       </form>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 rounded-xl border border-red-100 dark:border-red-900/50">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="flex items-center gap-3 p-4 bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20 text-center justify-center">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <p>{error}</p>
         </div>
       )}
 
       {result && (
-        <div className="flex flex-col gap-3 p-6 bg-green-50 dark:bg-green-950/30 rounded-2xl border border-green-100 dark:border-green-900/50 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center justify-between gap-4">
-            <div className="truncate">
-              <p className="text-sm font-medium text-green-800 dark:text-green-300 mb-1">Your shortened URL is ready!</p>
-              <a
-                href={result.shortUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xl font-bold text-green-900 dark:text-green-100 hover:underline truncate block"
-              >
-                {result.shortUrl}
-              </a>
-            </div>
-            <button
-              onClick={copyToClipboard}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all shrink-0",
-                copied
-                  ? "bg-green-200 text-green-900 dark:bg-green-800 dark:text-green-100"
-                  : "bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"
-              )}
+        <div className="flex flex-col gap-3 p-6 bg-background/80 border border-border/70 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Your shortened URL is ready!</p>
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <a
+              href={result.shortUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-2xl font-medium text-foreground hover:underline"
             >
-              {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              <span className="hidden sm:inline">{copied ? "Copied!" : "Copy link"}</span>
-            </button>
+              {result.shortUrl}
+            </a>
+            <Button
+              onClick={copyToClipboard}
+              variant={copied ? "default" : "outline"}
+              className="uppercase font-semibold text-xs tracking-wider h-10 px-4"
+            >
+              {copied ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+              {copied ? "Copied!" : "Copy"}
+            </Button>
           </div>
         </div>
       )}

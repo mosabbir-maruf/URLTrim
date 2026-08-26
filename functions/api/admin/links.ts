@@ -1,4 +1,4 @@
-import { verifyJWT } from "../../lib/jwt";
+import { verifyJWT } from "../../../lib/jwt";
 
 function getCookie(request: Request, name: string): string | null {
   const cookieHeader = request.headers.get("Cookie");

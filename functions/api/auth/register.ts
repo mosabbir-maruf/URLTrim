@@ -1,4 +1,4 @@
-import { hashPassword } from "../../lib/jwt";
+import { hashPassword } from "../../../lib/jwt";
 import { z } from "zod";
 
 const registerSchema = z.object({
@@ -19,7 +19,7 @@ export const onRequestPost = async (context: any) => {
     const result = registerSchema.safeParse(body);
 
     if (!result.success) {
-      return new Response(JSON.stringify({ success: false, error: result.error.errors[0].message }), { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: result.error.issues[0].message }), { status: 400 });
     }
 
     const { email, password } = result.data;

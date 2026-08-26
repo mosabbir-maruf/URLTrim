@@ -1,20 +1,4 @@
-import { verifyJWT } from "../../lib/jwt";
-
-function getCookie(request: Request, name: string): string | null {
-  const cookieHeader = request.headers.get("Cookie");
-  if (!cookieHeader) return null;
-  const match = cookieHeader.match(new RegExp(`(^| )${name}=([^;]+)`));
-  if (match) return match[2];
-  return null;
-}
-
-async function authenticate(context: any) {
-  const { request, env } = context;
-  const token = getCookie(request, "auth_token");
-  if (!token) return null;
-  const secret = env.JWT_SECRET || "default-secret-please-change";
-  return await verifyJWT(token, secret);
-}
+import { authenticate } from "../../../lib/jwt";
 
 export const onRequestGet = async (context: any) => {
   const user = await authenticate(context);

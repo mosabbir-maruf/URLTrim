@@ -1,4 +1,4 @@
-import { hashPassword, signJWT } from "../../lib/jwt";
+import { hashPassword, signJWT } from "../../../lib/jwt";
 import { z } from "zod";
 
 const loginSchema = z.object({
