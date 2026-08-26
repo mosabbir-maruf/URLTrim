@@ -8,7 +8,7 @@ import { Provider } from "@/components/provider"
 const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://urltrim.mosabbir.dev"),
+  metadataBase: new URL("https://urltrim.pages.dev"),
   title: "urltrim | Edge-Resolved URL Shortener",
   description: "A blazing fast, globally distributed URL shortener built on Cloudflare Workers and D1.",
   alternates: {
