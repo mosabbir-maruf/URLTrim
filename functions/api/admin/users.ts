@@ -13,9 +13,14 @@ async function authenticateAdmin(context: any) {
   const token = getCookie(request, "auth_token");
   if (!token) return null;
   const secret = env.JWT_SECRET || "default-secret-please-change";
-  const user = await verifyJWT(token, secret);
+  const decoded = await verifyJWT(token, secret);
+  if (!decoded || !decoded.sub) return null;
+  
+  // Real-time role verification from DB for strict security
+  const user = await env.DB.prepare("SELECT role FROM users WHERE id = ?").bind(decoded.sub).first();
   if (!user || user.role !== "admin") return null;
-  return user;
+  
+  return decoded; // Return JWT payload (which includes sub)
 }
 
 export const onRequestGet = async (context: any) => {

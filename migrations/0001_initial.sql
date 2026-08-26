@@ -7,5 +7,3 @@ CREATE TABLE links (
     expires_at INTEGER,
     is_active INTEGER NOT NULL DEFAULT 1
 );
-
-CREATE INDEX idx_links_code ON links(code);

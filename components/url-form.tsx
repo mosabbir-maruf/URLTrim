@@ -58,20 +58,20 @@ export function UrlForm() {
 
   return (
     <div className="w-full space-y-4">
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row max-w-2xl mx-auto">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row max-w-xl mx-auto">
         <Input
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="Paste your long URL here..."
-          className="flex-1 bg-background h-12 px-5 text-sm font-mono border-border rounded-none focus-visible:ring-0 focus-visible:border-foreground/50"
+          className="flex-1 bg-background/50 backdrop-blur-sm transform-gpu h-14 px-6 text-sm font-mono border-border/60 rounded-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-border/60 shadow-none transition-all"
           required
           disabled={isLoading}
         />
         <Button
           type="submit"
           disabled={isLoading || !url}
-          className="h-12 px-8 uppercase font-mono font-bold tracking-widest text-[11px] rounded-none bg-[#999] hover:bg-[#777] text-white"
+          className="h-14 px-8 uppercase font-mono font-bold tracking-widest text-[11px] rounded-none bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50 transition-all shadow-none"
         >
           {isLoading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : "Shorten"}
           {!isLoading && <span className="ml-2">→</span>}

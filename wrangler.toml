@@ -1,10 +1,10 @@
-name = "shrtn"
+name = "shorturl"
 compatibility_date = "2024-03-20"
 compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
-database_name = "shrtn_db"
-database_id = "a4484e50-e9bd-482e-ac10-46643b48a8c1"
+database_name = "shorturl_db"
+database_id = "989fa717-5d2b-4fd2-aa6f-d287404800cd"
 
 
 

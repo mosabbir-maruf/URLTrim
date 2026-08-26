@@ -23,7 +23,7 @@ export const onRequestPost = async (context: any) => {
 
     const { email, password } = result.data;
     
-    const user = await env.DB.prepare("SELECT id, email, password_hash, role FROM users WHERE email = ?").bind(email).first();
+    const user = await env.DB.prepare("SELECT id, email, password_hash, role, is_verified FROM users WHERE email = ?").bind(email).first();
     if (!user) {
       return new Response(JSON.stringify({ success: false, error: "Invalid email or password" }), { status: 401 });
     }
@@ -31,6 +31,11 @@ export const onRequestPost = async (context: any) => {
     const hashedPassword = await hashPassword(password, salt);
     if (hashedPassword !== user.password_hash) {
       return new Response(JSON.stringify({ success: false, error: "Invalid email or password" }), { status: 401 });
+    }
+
+    // Block unverified users
+    if (user.is_verified === 0) {
+      return new Response(JSON.stringify({ success: false, error: "Please verify your email before logging in. Check your inbox." }), { status: 403 });
     }
 
     // Sign JWT

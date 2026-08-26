@@ -15,7 +15,7 @@ export default function AdminPage() {
         <nav className="flex h-14 items-center justify-between px-2 md:h-12">
           <Link href="/" className="-ml-2 flex h-10 items-center justify-center gap-1.5 px-4 transition-colors hover:bg-muted font-bold tracking-tight">
             <Logo className="w-6 h-6" />
-            <span className="text-lg mt-0.5">SHRTN</span>
+            <span className="text-lg mt-0.5">ShortURL</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/dashboard" className={buttonVariants({ variant: "ghost", size: "sm" })}>Dashboard</Link>
@@ -26,29 +26,29 @@ export default function AdminPage() {
       
       <main className="flex flex-1 flex-col border-t relative">
         <div className="mx-auto flex w-full max-w-6xl flex-col border-x relative">
-          <section className="flex flex-col items-center justify-center px-5 pt-24 md:pt-32 pb-16 relative overflow-hidden bg-background">
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-50">
-              <div className="h-[30rem] w-[30rem] rounded-full bg-muted/30 blur-3xl" />
+          <section className="flex flex-col items-center justify-center px-5 pt-20 pb-16 relative overflow-hidden bg-background">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-50 overflow-hidden">
+              <div className="h-[25rem] w-[25rem] rounded-full bg-muted/50 blur-3xl transform-gpu" />
             </div>
             
-            <h1 className="max-w-3xl text-center font-mono text-[10vw] sm:text-7xl md:text-[5rem] font-bold leading-none tracking-tight z-10">
+            <h1 className="max-w-3xl text-center font-mono text-[9vw] sm:text-6xl md:text-[5rem] font-bold leading-[1.05] tracking-tight z-10">
               <span className="text-foreground">SHORT LINKS.</span>
               <br />
               <span className="text-muted-foreground/60">MADE SIMPLE.</span>
             </h1>
             
-            <p className="mt-10 max-w-lg text-center font-mono text-sm leading-8 text-muted-foreground/80 z-10">
+            <p className="mt-6 max-w-lg text-center font-mono text-sm leading-7 text-muted-foreground/70 z-10">
               Create fast, shareable short URLs in seconds. Built
               <br className="hidden sm:block" />
               on Edge infrastructure for global low-latency
               <br className="hidden sm:block" />
               redirects.
             </p>
+
+            <div className="w-full max-w-2xl mx-auto mt-10 relative z-10">
+              <UrlForm />
+            </div>
           </section>
-          
-          <div className="w-full flex justify-center px-4 md:px-8 relative z-10 mt-12 mb-24">
-            <div className="w-full max-w-xl mx-auto"><UrlForm /></div>
-          </div>
 
           <SystemStatusTicker />
           
@@ -238,7 +238,7 @@ function ChangelogSection() {
   const logs = [
     { version: "v1.8.0", date: "Aug 26, 2026", text: "Complete decoupling and native Cloudflare Edge integration." },
     { version: "v1.4.0", date: "Last week", text: "Introduced user dashboards, JWT authentication, and analytics." },
-    { version: "v1.0.0", date: "Initial Release", text: "First public release of the SHRTN engine." },
+    { version: "v1.0.0", date: "Initial Release", text: "First public release of the ShortURL engine." },
   ]
   return (
     <section className="flex flex-col items-center justify-center px-5 py-24 border-b border-border/40">

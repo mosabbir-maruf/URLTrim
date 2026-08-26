@@ -139,6 +139,10 @@
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+  ::selection {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
 }
 
 @keyframes marquee {

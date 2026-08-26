@@ -1,88 +1,118 @@
-# Admin Dashboard
+# ShortURL
 
-A centralized, secure administration dashboard for managing portfolio data, projects, and incoming contact requests. Built with **Next.js 15**, **React 19**, **Tailwind CSS**, and **Firebase**.
+A lightning-fast, secure, and modern URL shortener built on **Cloudflare Pages** and **Edge infrastructure**. Designed for minimal latency and extreme performance, utilizing **Cloudflare D1** for serverless SQL and **Cloudflare Pages Functions** for routing.
 
 ## 🚀 Features
-- **Project Management:** Add, edit, delete, and reorder projects (integrated with `@dnd-kit`).
-- **Contact Inquiries:** View and manage incoming messages from the portfolio contact form.
-- **Analytics:** Integration with Google Analytics Data API to view basic traffic and metrics.
-- **Migration Tool:** A built-in `/migrate` script to factory-reset and seed the Firebase database with predefined JSON data.
-- **Monorepo Ready:** Leverages shared internal packages (`@workspace/ui`, `@workspace/firebase`).
+
+- **Edge Network:** Global CDN resolution with milliseconds latency.
+- **Enterprise Security:** Environment-variable-based admin whitelisting, real-time JWT role revocation via Edge DB lookups, and email verification via [Resend](https://resend.com).
+- **Email Verification:** New users must verify their email before logging in. Branded, on-theme HTML email templates sent through Resend.
+- **D1 Database:** Serverless SQL capabilities for high-performance indexing and fast URL resolution.
+- **Analytics:** Built-in click tracking on every redirect.
+- **Modern UI:** Monochromatic, minimalist, boxy UI built with **Next.js 16**, **React 19**, and **Tailwind CSS v4**.
 
 ## 📁 File Structure
 
 ```text
-admin/
-├── .env.local             # Environment variables (local dev)
-├── .env.example           # Example environment variables
-├── package.json           # Dependencies and scripts
-├── next.config.mjs        # Next.js configuration
-├── tailwind.config.ts     # Tailwind CSS config
-├── tsconfig.json          # TypeScript config
+ShortURL/
+├── app/                          # Next.js App Router (UI)
+│   ├── dashboard/                # Dashboard for authenticated users
+│   ├── login/                    # Login page
+│   ├── register/                 # Registration page
+│   └── page.tsx                  # Hero page & main shortener UI
 │
-├── app/                   # Next.js App Router
-│   ├── api/               # Serverless API Routes
-│   ├── dashboard/         # Main Admin Dashboard view
-│   ├── contact/           # Contact inquiries management view
-│   ├── login/             # Authentication view
-│   ├── migrate/           # Database migration tool view
-│   ├── layout.tsx         # Root layout wrapper
-│   └── page.tsx           # Entry page
+├── functions/                    # Cloudflare Pages Functions (Edge)
+│   ├── [code].ts                 # Redirect handler (edge-resolved)
+│   └── api/
+│       ├── shorten.ts            # URL shortening endpoint
+│       ├── auth/
+│       │   ├── login.ts          # Login with JWT cookie
+│       │   ├── register.ts       # Registration + Resend email verification
+│       │   └── verify.ts         # Email verification endpoint
+│       ├── admin/
+│       │   ├── links.ts          # Admin: manage all links
+│       │   └── users.ts          # Admin: manage all users
+│       └── user/
+│           └── links.ts          # User: manage own links
 │
-├── components/            # Reusable React components
-│   ├── admin-chrome.tsx   # Core admin layout shell
-│   ├── provider.tsx       # State/Auth providers
-│   └── theme-provider.tsx # Dark/Light mode provider
+├── migrations/                   # D1 database migrations
+│   ├── 0001_initial.sql          # Links table
+│   ├── 0002_add_users.sql        # Users table + user_id FK
+│   └── 0003_add_email_verification.sql  # Email verification columns
 │
-└── public/                # Static public assets (icons, logos)
+├── components/                   # Reusable React components
+├── lib/                          # Utility functions, validation, JWT
+├── wrangler.toml                 # Cloudflare Workers config
+├── .env.example                  # Example environment variables
+└── package.json                  # Dependencies and scripts
 ```
 
-## ⚙️ Environment Variables
+## 🔐 Security Architecture
 
-Copy the `.env.example` file to `.env.local` and fill in your credentials.
+### Admin Whitelisting
+Admin privileges are **never** assigned automatically. Only emails listed in the `ADMIN_EMAILS` environment variable receive the `admin` role upon registration. This eliminates the "first-user" race condition entirely.
 
-```bash
-cp .env.example .env.local
-```
+### Real-Time Role Revocation
+Admin API routes do **not** trust the role stored in the JWT cookie. Instead, every admin request performs a real-time database lookup (`SELECT role FROM users WHERE id = ?`) to verify the user's current role. If you demote or ban someone in the database, their access is revoked **instantly** on the next request.
 
-### `.env.example`
-```env
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY="your_api_key_here"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your_project.firebaseapp.com"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="your_project_id"
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your_project.firebasestorage.app"
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your_sender_id"
-NEXT_PUBLIC_FIREBASE_APP_ID="1:your_sender_id:web:your_app_id"
-
-# Google Analytics Admin API (For Dashboard Stats)
-GA_CLIENT_EMAIL="your_service_account_email@gserviceaccount.com"
-GA_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour_private_key_here\n-----END PRIVATE KEY-----\n"
-GA_PROPERTY_ID="your_ga4_property_id"
-
-# Telegram Bot Integration (For Notifications)
-TELEGRAM_CHAT_ID="your_chat_id"
-TELEGRAM_BOT_TOKEN="your_bot_token"
-```
+### Email Verification
+New accounts are created with `is_verified = 0`. A branded verification email is sent via Resend containing a unique single-use token. Users **cannot log in** until they click the verification link. The token is cleared from the database after use.
 
 ## 🛠️ Installation & Setup
 
 1. **Install Dependencies**
-   From the root of the monorepo, run:
    ```bash
    npm install
    ```
 
 2. **Start Development Server**
-   Start the local Next.js dev server on port 3001:
    ```bash
    npm run dev
    ```
 
-3. **Database Migration**
-   If this is your first time setting up the Firebase backend, navigate to `http://localhost:3001/migrate` in your browser and click "Migrate" to seed your database with the starting projects data.
+3. **Cloudflare Local Development**
+   Use Wrangler to test Pages Functions locally:
+   ```bash
+   npx wrangler pages dev .next
+   ```
 
-4. **Production Build**
+4. **Run Database Migrations**
+   ```bash
+   npx wrangler d1 execute shorturl_db --file=./migrations/0001_initial.sql
+   npx wrangler d1 execute shorturl_db --file=./migrations/0002_add_users.sql
+   npx wrangler d1 execute shorturl_db --file=./migrations/0003_add_email_verification.sql
+   ```
+
+5. **Production Build**
    ```bash
    npm run build
    ```
+
+## ⚙️ Environment Variables
+
+Copy `.env.example` to `.env.local` or configure in Cloudflare Dashboard:
+
+```env
+# Security
+JWT_SECRET="your_jwt_secret_here"
+PASSWORD_SALT="your_password_salt_here"
+ADMIN_EMAILS="your_email@example.com"
+
+# Resend (Email Verification)
+RESEND_API_KEY="re_your_resend_api_key"
+RESEND_FROM_EMAIL="ShortURL <noreply@yourdomain.com>"
+
+# Domain Configuration
+BASE_URL="https://shorturl.pages.dev"
+```
+
+## 🧱 Tech Stack
+
+| Layer       | Technology                        |
+|-------------|-----------------------------------|
+| Frontend    | Next.js 16, React 19, Tailwind v4 |
+| Edge Runtime| Cloudflare Pages Functions         |
+| Database    | Cloudflare D1 (SQLite)            |
+| Auth        | Custom JWT + Resend email verify  |
+| Deployment  | Cloudflare Pages                  |
+

@@ -51,7 +51,7 @@ export default function LoginPage() {
         <nav className="flex h-14 items-center justify-between px-2 md:h-12">
           <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
             <LinkIcon className="w-4 h-4" />
-            <span>SHRTN</span>
+            <span>ShortURL</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/" className={buttonVariants({ variant: "ghost", size: "sm" })}>
