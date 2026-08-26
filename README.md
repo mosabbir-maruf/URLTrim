@@ -124,25 +124,22 @@ BASE_URL="https://shorturl.pages.dev"
 
 This project is a Next.js static export (`output: "export"`) served by Cloudflare Pages, with edge logic in `functions/` and a D1 database.
 
-1. **Push to GitHub** and go to Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → connect your repository.
-2. **Build settings:**
-   - Framework preset: `None`
-   - Build command: `npm run build`
-   - Build output directory: `out`
-   - (Pages Functions are auto-detected from the `functions/` directory — no extra config needed.)
-3. **Create the D1 database** (if not already created):
+1. **Connect Repository**
+   Push to GitHub, then in Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → connect your repository. Set Framework preset to `None`, Build command to `npm run build`, and Build output directory to `out` (Pages Functions are auto-detected from `functions/`).
+2. **Create the D1 Database**
    ```bash
    npx wrangler d1 create shorturl_db
    ```
-   The database ID is already set in `wrangler.toml`. In the Pages project settings, add a **D1 database binding** with variable name `DB` pointing to `shorturl_db`.
- 4. **Add environment variables / secrets** in **Settings → Variables and Secrets** (use "Secret" for `JWT_SECRET`, `PASSWORD_SALT`, `RESEND_API_KEY`). Use the same variables listed in the [⚙️ Environment Variables](#️-environment-variables) section above — just set `BASE_URL` to your live `*.pages.dev` (or custom) domain.
- 5. **Deploy.** After the first successful deploy, run the database migration (same command as in [Installation & Setup](#️-installation--setup)):
+   The database ID is already set in `wrangler.toml`. In the Pages project settings, add a D1 database binding with variable name `DB` pointing to `shorturl_db`.
+3. **Add Environment Variables**
+   In **Settings → Variables and Secrets** (use "Secret" for `JWT_SECRET`, `PASSWORD_SALT`, `RESEND_API_KEY`), set the same variables listed in the [⚙️ Environment Variables](#️-environment-variables) section above — just point `BASE_URL` at your live `*.pages.dev` (or custom) domain.
+4. **Run Database Migration**
+   After the first successful deploy, run the migration (same command as in [Installation & Setup](#️-installation--setup)):
    ```bash
    npx wrangler d1 execute shorturl_db --file=./migrations/schema.sql
    ```
- 6. Update `BASE_URL` to your live domain (or custom domain) once assigned.
-
-> **Note:** Do not run `next start` in production — Cloudflare Pages serves the static `out/` assets together with the `functions/` edge handlers. Make sure `BASE_URL` matches your deployed domain.
+5. **Update Domain**
+   Set `BASE_URL` to your assigned domain (or custom domain) once available. Do not run `next start` in production — Pages serves the static `out/` assets with the `functions/` edge handlers.
 
 ## 🧱 Tech Stack
 
