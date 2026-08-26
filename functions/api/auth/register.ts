@@ -42,14 +42,14 @@ export const onRequestPost = async (context: any) => {
     const verifyToken = crypto.randomUUID();
     const createdAt = Math.floor(Date.now() / 1000);
 
+    // Send verification email via Resend (if API key is present)
+    const resendApiKey = env.RESEND_API_KEY;
+
     // Insert user. If Resend is not configured, auto-verify (skips email verification).
     const isVerified = resendApiKey ? 0 : 1;
     await env.DB.prepare(
       "INSERT INTO users (id, email, password_hash, role, created_at, is_verified, verification_token) VALUES (?, ?, ?, ?, ?, ?, ?)"
     ).bind(id, email, hashedPassword, role, createdAt, isVerified, verifyToken).run();
-
-    // Send verification email via Resend (if API key is present)
-    const resendApiKey = env.RESEND_API_KEY;
     if (resendApiKey) {
       const baseUrl = env.BASE_URL || "https://shorturl.pages.dev";
       const verifyLink = `${baseUrl}/api/auth/verify?token=${verifyToken}`;
