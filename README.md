@@ -125,7 +125,14 @@ BASE_URL="https://shorturl.pages.dev"
 This project is a Next.js static export (`output: "export"`) served by Cloudflare Pages, with edge logic in `functions/` and a D1 database.
 
 1. **Connect Repository**
-   Push to GitHub, then in Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → connect your repository. Set Framework preset to `None`, Build command to `npm run build`, and Build output directory to `out` (Pages Functions are auto-detected from `functions/`).
+   Push your code to GitHub, then open the Cloudflare Dashboard and go to **Workers & Pages → Create → Pages** to connect the repository.
+
+   Configure the build settings as follows:
+   - **Framework preset:** `None`
+   - **Build command:** `npm run build`
+   - **Build output directory:** `out`
+
+   Pages Functions are auto-detected from the `functions/` directory, so no extra configuration is needed.
 2. **Create the D1 Database**
    ```bash
    npx wrangler d1 create shorturl_db
