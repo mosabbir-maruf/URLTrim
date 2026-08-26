@@ -120,6 +120,18 @@ RESEND_FROM_EMAIL="ShortURL <noreply@yourdomain.com>"
 BASE_URL="https://shorturl.pages.dev"
 ```
 
+Generate strong random values for `JWT_SECRET` and `PASSWORD_SALT` (each should be a unique, high-entropy string):
+
+```bash
+# 32 random bytes, base64-encoded
+openssl rand -base64 32
+
+# or, 64 hex characters
+openssl rand -hex 32
+```
+
+Copy the output of either command into both `JWT_SECRET` and `PASSWORD_SALT` (use a **different** value for each). On Cloudflare Pages, add them as **Secret** variables in **Settings → Variables and Secrets** rather than plain variables.
+
 ## 🚀 Deployment (Cloudflare Pages — Dashboard)
 
 This project is a Next.js static export (`output: "export"`) served by Cloudflare Pages, with edge logic in `functions/` and a D1 database.
