@@ -29,13 +29,13 @@ export function UrlForm() {
         body: JSON.stringify({ url }),
       });
 
-      const data = await response.json();
+      const data = await response.json() as { error?: string; shortUrl?: string; shortCode?: string };
 
       if (!response.ok) {
         throw new Error(data.error || "Something went wrong.");
       }
 
-      setResult(data);
+      setResult({ shortUrl: data.shortUrl!, shortCode: data.shortCode! });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {

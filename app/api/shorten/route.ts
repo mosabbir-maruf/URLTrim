@@ -54,8 +54,9 @@ export async function POST(req: NextRequest) {
     
     // Parse expiration (optional in body)
     let expiresAt: number | null = null;
-    if (body.expiresInDays && typeof body.expiresInDays === "number") {
-       expiresAt = createdAt + (body.expiresInDays * 24 * 60 * 60);
+    const requestBody = body as { expiresInDays?: number };
+    if (requestBody.expiresInDays && typeof requestBody.expiresInDays === "number") {
+       expiresAt = createdAt + (requestBody.expiresInDays * 24 * 60 * 60);
     }
 
     await db.prepare(`
