@@ -14,8 +14,8 @@ export default function AdminPage() {
       <header className="sticky top-0 z-50 mx-auto w-full max-w-6xl border-x bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/50">
         <nav className="flex h-14 items-center justify-between px-2 md:h-12">
           <Link href="/" className="-ml-2 flex h-10 items-center justify-center gap-2 px-4 transition-colors hover:bg-muted font-bold tracking-tight">
-            <Logo className="w-4 h-4" />
-            <span>SHRTN</span>
+            <Logo className="w-6 h-6" />
+            <span className="text-lg mt-0.5">SHRTN</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/dashboard" className={buttonVariants({ variant: "ghost", size: "sm" })}>Dashboard</Link>
@@ -153,49 +153,13 @@ function SystemStatusTicker() {
           System Status
         </h1>
 
-        <div className="flex flex-col items-center md:flex-row">
-          <div className="relative w-full py-4">
-            <div className="transition duration-300 group-hover:blur-sm group-hover:opacity-60">
-              <Marquee className="flex items-center py-1" speed="slow" pauseOnHover>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center mx-6 gap-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex h-2 w-2 items-center justify-center">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75"></span>
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                      </div>
-                      <span>All Systems Operational</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex h-2 w-2 items-center justify-center">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75"></span>
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                      </div>
-                      <span>End-to-End Encrypted</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex h-2 w-2 items-center justify-center">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75"></span>
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                      </div>
-                      <span>Millisecond Latency</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex h-2 w-2 items-center justify-center">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75"></span>
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                      </div>
-                      <span>Edge Sync Active</span>
-                    </div>
-                  </div>
-                ))}
-              </Marquee>
+        <div className="flex justify-center mt-12 pb-8">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 border border-border/40 bg-card/30 backdrop-blur-sm rounded-full font-mono text-[10px] sm:text-xs text-muted-foreground uppercase tracking-widest hover:border-border/80 transition-colors cursor-default">
+            <div className="relative flex h-2 w-2 items-center justify-center">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
             </div>
-            <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-40 bg-linear-to-r" />
-            <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-40 bg-linear-to-l" />
+            All systems operational
           </div>
         </div>
       </div>
