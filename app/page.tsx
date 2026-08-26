@@ -26,23 +26,27 @@ export default function AdminPage() {
       
       <main className="flex flex-1 flex-col border-t relative">
         <div className="mx-auto flex w-full max-w-6xl flex-col border-x relative">
-          <section className="flex flex-col items-center justify-center px-5 pt-24 pb-16 md:pt-32 md:pb-24 relative overflow-hidden">
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="h-[40rem] w-[40rem] rounded-full bg-foreground/5 blur-3xl" />
+          <section className="flex flex-col items-center justify-center px-5 pt-24 md:pt-32 pb-16 relative overflow-hidden bg-background">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-50">
+              <div className="h-[30rem] w-[30rem] rounded-full bg-muted/30 blur-3xl" />
             </div>
             
-            <h1 className="max-w-2xl text-center font-mono text-4xl font-bold tracking-tighter uppercase sm:text-5xl md:text-6xl lg:text-7xl z-10">
-              Short links.
+            <h1 className="max-w-3xl text-center font-mono text-[10vw] sm:text-7xl md:text-[5rem] font-bold leading-none tracking-tight z-10">
+              <span className="text-foreground">SHORT LINKS.</span>
               <br />
-              <span className="text-muted-foreground">Made simple.</span>
+              <span className="text-muted-foreground/60">MADE SIMPLE.</span>
             </h1>
-            <p className="mt-5 max-w-md text-center text-sm leading-7 text-muted-foreground z-10">
-              Create fast, shareable short URLs in seconds. Built on Edge infrastructure for global low-latency redirects.
-            </p>
             
+            <p className="mt-10 max-w-lg text-center font-mono text-sm leading-8 text-muted-foreground/80 z-10">
+              Create fast, shareable short URLs in seconds. Built
+              <br className="hidden sm:block" />
+              on Edge infrastructure for global low-latency
+              <br className="hidden sm:block" />
+              redirects.
+            </p>
           </section>
           
-          <div className="w-full flex justify-center px-4 md:px-8 relative z-10 mb-20">
+          <div className="w-full flex justify-center px-4 md:px-8 relative z-10 mt-12 mb-24">
             <div className="w-full max-w-xl mx-auto"><UrlForm /></div>
           </div>
 
