@@ -6,5 +6,4 @@ pages_build_output_dir = ".vercel/output/static"
 
 
 
-[vars]
-BASE_URL = "http://localhost:3000"
+
