@@ -54,9 +54,7 @@ ShortURL/
 │           └── links.ts          # User: manage own links
 │
 ├── migrations/                   # D1 database migrations
-│   ├── 0001_initial.sql          # Links table
-│   ├── 0002_add_users.sql        # Users table + user_id FK
-│   └── 0003_add_email_verification.sql  # Email verification columns
+│   └── schema.sql                # Full database schema
 │
 ├── components/                   # Reusable React components
 ├── lib/                          # Utility functions, validation, JWT
@@ -94,11 +92,9 @@ New accounts are created with `is_verified = 0`. A branded verification email is
    npx wrangler pages dev .next
    ```
 
-4. **Run Database Migrations**
+4. **Run Database Migration**
    ```bash
-   npx wrangler d1 execute shorturl_db --file=./migrations/0001_initial.sql
-   npx wrangler d1 execute shorturl_db --file=./migrations/0002_add_users.sql
-   npx wrangler d1 execute shorturl_db --file=./migrations/0003_add_email_verification.sql
+   npx wrangler d1 execute shorturl_db --file=./migrations/schema.sql
    ```
 
 5. **Production Build**
