@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [newUrl, setNewUrl] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<"overview" | "links">("overview");
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -73,15 +74,17 @@ export default function Dashboard() {
     }
   };
 
-  const handleDelete = async (code: string) => {
-    if (!confirm("Permanently delete this link?")) return;
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
     try {
-      const res = await fetch(`/api/user/links?code=${code}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`/api/user/links?code=${pendingDelete}`, { method: "DELETE", credentials: "include" });
       if (res.ok) {
-        setLinks(links.filter(l => l.code !== code));
+        setLinks(links.filter(l => l.code !== pendingDelete));
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setPendingDelete(null);
     }
   };
 
@@ -230,9 +233,9 @@ export default function Dashboard() {
                           </td>
                           <td className="px-6 py-4 font-mono text-sm">{link.clicks}</td>
                           <td className="px-6 py-4 text-right">
-                            <button onClick={() => handleDelete(link.code)} className="opacity-0 group-hover:opacity-100 p-2 text-muted-foreground hover:text-destructive transition-all">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                              <button onClick={() => setPendingDelete(link.code)} className="opacity-0 group-hover:opacity-100 p-2 text-muted-foreground hover:text-destructive transition-all">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                           </td>
                         </tr>
                       ))}
@@ -253,6 +256,37 @@ export default function Dashboard() {
       <div className="z-10 mt-auto">
         <Footer />
       </div>
+
+      {pendingDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-sm border border-foreground bg-background">
+            <div className="border-b border-foreground px-5 py-4">
+              <h2 className="text-sm font-bold uppercase tracking-widest">Delete link</h2>
+            </div>
+            <div className="px-5 py-6">
+              <p className="text-sm text-muted-foreground">
+                Permanently delete{" "}
+                <span className="font-mono text-foreground">{pendingDelete}</span>? This
+                action cannot be undone.
+              </p>
+            </div>
+            <div className="flex border-t border-foreground">
+              <button
+                onClick={() => setPendingDelete(null)}
+                className="flex-1 border-r border-foreground px-5 py-3 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-5 py-3 text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
