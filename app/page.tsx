@@ -147,19 +147,36 @@ export default function AdminPage() {
 
 function SystemStatusTicker() {
   return (
-    <section className="group hover:bg-foreground/5 overflow-hidden border-y border-border/40 duration-300">
+    <section className="overflow-hidden border-y border-border/40">
       <div className="relative">
-        <h1 className="absolute text-foreground inset-0 z-20 flex items-center justify-center font-mono text-sm tracking-widest uppercase opacity-0 transition-all duration-300 group-hover:opacity-100">
-          System Status
-        </h1>
+        
 
-        <div className="flex justify-center mt-12 pb-8">
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 border border-border/40 bg-card/30 backdrop-blur-sm rounded-full font-mono text-[10px] sm:text-xs text-muted-foreground uppercase tracking-widest hover:border-border/80 transition-colors cursor-default">
-            <div className="relative flex h-2 w-2 items-center justify-center">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+        <div className="flex flex-col items-center md:flex-row">
+          <div className="relative w-full py-4">
+            <div>
+              <Marquee className="flex items-center py-2" speed="slow" >
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex items-center mx-4 gap-4 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors">
+                    {i % 2 === 0 && (
+                      <div className="relative flex h-1.5 w-1.5 items-center justify-center">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75"></span>
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                      </div>
+                    )}
+                    <span>All Systems Operational</span>
+                    <span className="text-muted-foreground/30 font-light">/</span>
+                    <span>End-to-End Encrypted</span>
+                    <span className="text-muted-foreground/30 font-light">/</span>
+                    <span>Millisecond Latency</span>
+                    <span className="text-muted-foreground/30 font-light">/</span>
+                    <span>Edge Sync Active</span>
+                    <span className="text-muted-foreground/30 font-light">/</span>
+                  </div>
+                ))}
+              </Marquee>
             </div>
-            All systems operational
+            <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-40 bg-linear-to-r" />
+            <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-40 bg-linear-to-l" />
           </div>
         </div>
       </div>
