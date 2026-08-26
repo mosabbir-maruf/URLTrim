@@ -5,9 +5,9 @@ export const runtime = "edge";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: { code: string } }
 ) {
-  const { code } = await params;
+  const { code } = params;
 
   try {
     const db = getDB();
