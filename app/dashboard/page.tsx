@@ -358,16 +358,33 @@ export default function Dashboard() {
                           )}
                           <td className="px-6 py-4 font-mono text-sm">{link.clicks}</td>
                           <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                              {isAdmin && (
-                                <button onClick={() => openEdit(link)} className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Edit">
-                                  <Pencil className="w-4 h-4" />
+                            {pendingDelete === link.code ? (
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => setPendingDelete(null)}
+                                  className="text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground px-2 py-1"
+                                >
+                                  Cancel
                                 </button>
-                              )}
-                              <button onClick={() => setPendingDelete(link.code)} className="p-2 text-muted-foreground hover:text-destructive transition-colors" title="Delete">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                                <button
+                                  onClick={confirmDelete}
+                                  className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-2 py-1"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                {isAdmin && (
+                                  <button onClick={() => openEdit(link)} className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Edit">
+                                    <Pencil className="w-4 h-4" />
+                                  </button>
+                                )}
+                                <button onClick={() => setPendingDelete(link.code)} className="p-2 text-muted-foreground hover:text-destructive transition-colors" title="Delete">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -403,19 +420,36 @@ export default function Dashboard() {
                             {new Date(u.created_at * 1000).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => setPendingDeleteUser(u.id)}
-                              disabled={u.id === me?.id}
-                              className={cn(
-                                "p-2 transition-colors",
-                                u.id === me?.id
-                                  ? "text-muted-foreground/40 cursor-not-allowed"
-                                  : "text-muted-foreground hover:text-destructive"
-                              )}
-                              title={u.id === me?.id ? "Cannot delete yourself" : "Delete user"}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {pendingDeleteUser === u.id ? (
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => setPendingDeleteUser(null)}
+                                  className="text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground px-2 py-1"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={confirmDeleteUser}
+                                  className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-2 py-1"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setPendingDeleteUser(u.id)}
+                                disabled={u.id === me?.id}
+                                className={cn(
+                                  "p-2 transition-colors",
+                                  u.id === me?.id
+                                    ? "text-muted-foreground/40 cursor-not-allowed"
+                                    : "text-muted-foreground hover:text-destructive"
+                                )}
+                                title={u.id === me?.id ? "Cannot delete yourself" : "Delete user"}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -436,67 +470,6 @@ export default function Dashboard() {
       <div className="z-10 mt-auto">
         <Footer />
       </div>
-
-      {pendingDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-sm border border-foreground bg-background">
-            <div className="border-b border-foreground px-5 py-4">
-              <h2 className="text-sm font-bold uppercase tracking-widest">Delete link</h2>
-            </div>
-            <div className="px-5 py-6">
-              <p className="text-sm text-muted-foreground">
-                Permanently delete{" "}
-                <span className="font-mono text-foreground">{pendingDelete}</span>? This
-                action cannot be undone.
-              </p>
-            </div>
-            <div className="flex border-t border-foreground">
-              <button
-                onClick={() => setPendingDelete(null)}
-                className="flex-1 border-r border-foreground px-5 py-3 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-muted"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 px-5 py-3 text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {pendingDeleteUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-sm border border-foreground bg-background">
-            <div className="border-b border-foreground px-5 py-4">
-              <h2 className="text-sm font-bold uppercase tracking-widest">Delete user</h2>
-            </div>
-            <div className="px-5 py-6">
-              <p className="text-sm text-muted-foreground">
-                Permanently delete this user and all their links? This action
-                cannot be undone.
-              </p>
-            </div>
-            <div className="flex border-t border-foreground">
-              <button
-                onClick={() => setPendingDeleteUser(null)}
-                className="flex-1 border-r border-foreground px-5 py-3 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-muted"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDeleteUser}
-                className="flex-1 px-5 py-3 text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {editing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
