@@ -2,7 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, Trash2, LogOut, Copy, ExternalLink, Link as LinkIcon, BarChart2, Plus, CheckCircle2, LayoutDashboard } from "lucide-react";
+import {
+  LoaderCircle,
+  Trash2,
+  LogOut,
+  Copy,
+  ExternalLink,
+  Link as LinkIcon,
+  BarChart2,
+  Plus,
+  CheckCircle2,
+  LayoutDashboard,
+  Pencil,
+  Users as UsersIcon,
+} from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminFooter as Footer } from "@/components/admin-chrome";
@@ -10,44 +23,88 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 
-type Link = {
+type LinkRow = {
   id: string;
   code: string;
   original_url: string;
   clicks: number;
   created_at: number;
   is_active: number;
+  email?: string;
+};
+
+type UserRow = {
+  id: string;
+  email: string;
+  role: string;
+  created_at: number;
 };
 
 export default function Dashboard() {
-  const [links, setLinks] = useState<Link[]>([]);
+  const [links, setLinks] = useState<LinkRow[]>([]);
+  const [users, setUsers] = useState<UserRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [newUrl, setNewUrl] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const [currentTab, setCurrentTab] = useState<"overview" | "links">("overview");
+  const [currentTab, setCurrentTab] = useState<"overview" | "links" | "users">("overview");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [pendingDeleteUser, setPendingDeleteUser] = useState<string | null>(null);
+  const [editing, setEditing] = useState<LinkRow | null>(null);
+  const [editUrl, setEditUrl] = useState("");
+  const [me, setMe] = useState<{ id: string; email: string; role: string } | null>(null);
   const router = useRouter();
+
+  const isAdmin = me?.role === "admin";
+
+  useEffect(() => {
+    fetchMe();
+  }, []);
+
+  const fetchMe = async () => {
+    try {
+      const res = await fetch("/api/auth/me", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated) setMe(data.user);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     fetchLinks();
-  }, []);
+    if (isAdmin) fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin]);
 
   const fetchLinks = async () => {
     try {
-      const res = await fetch("/api/user/links", { credentials: "include" });
+      const endpoint = isAdmin ? "/api/admin/links" : "/api/user/links";
+      const res = await fetch(endpoint, { credentials: "include" });
       if (res.status === 401) {
         router.push("/login");
         return;
       }
       const data = await res.json();
-      if (data.success) {
-        setLinks(data.links);
-      }
+      if (data.success) setLinks(data.links);
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("/api/admin/users", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) setUsers(data.users);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -76,15 +133,63 @@ export default function Dashboard() {
 
   const confirmDelete = async () => {
     if (!pendingDelete) return;
+    const endpoint = isAdmin
+      ? `/api/admin/links?code=${pendingDelete}`
+      : `/api/user/links?code=${pendingDelete}`;
     try {
-      const res = await fetch(`/api/user/links?code=${pendingDelete}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(endpoint, { method: "DELETE", credentials: "include" });
       if (res.ok) {
-        setLinks(links.filter(l => l.code !== pendingDelete));
+        setLinks(links.filter((l) => l.code !== pendingDelete));
       }
     } catch (err) {
       console.error(err);
     } finally {
       setPendingDelete(null);
+    }
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!pendingDeleteUser) return;
+    try {
+      const res = await fetch(`/api/admin/users?id=${pendingDeleteUser}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setUsers(users.filter((u) => u.id !== pendingDeleteUser));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPendingDeleteUser(null);
+    }
+  };
+
+  const openEdit = (link: LinkRow) => {
+    setEditing(link);
+    setEditUrl(link.original_url);
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    try {
+      const res = await fetch("/api/admin/links", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: editing.code, original_url: editUrl }),
+        credentials: "include",
+      });
+      if (res.ok) {
+        setLinks(
+          links.map((l) => (l.code === editing.code ? { ...l, original_url: editUrl } : l))
+        );
+        setEditing(null);
+      } else {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || "Failed to update link");
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -122,6 +227,11 @@ export default function Dashboard() {
             <span className="text-lg mt-0.5">urltrim</span>
           </Link>
           <div className="flex items-center gap-1">
+            {isAdmin && (
+              <span className="hidden sm:inline-block mr-1 border border-foreground px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
+                Admin
+              </span>
+            )}
             <button onClick={handleLogout} className={buttonVariants({ variant: "ghost", size: "sm" })}>
               Sign out
             </button>
@@ -131,7 +241,6 @@ export default function Dashboard() {
 
       <main className="flex flex-1 flex-col border-t relative z-10">
         <div className="mx-auto flex w-full max-w-6xl flex-col flex-1 border-x relative bg-background/50 backdrop-blur-sm">
-          
           <div className="flex items-center justify-between border-b bg-muted/10 overflow-x-auto px-2">
             <div className="flex items-center">
               <button
@@ -154,10 +263,23 @@ export default function Dashboard() {
                     : "border-transparent text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                 )}
               >
-                <LinkIcon className="h-4 w-4" /> Links
+                <LinkIcon className="h-4 w-4" /> {isAdmin ? "All Links" : "Links"}
               </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setCurrentTab("users")}
+                  className={cn(
+                    "flex items-center gap-2 px-6 py-4 text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
+                    currentTab === "users"
+                      ? "border-foreground text-foreground bg-background/50"
+                      : "border-transparent text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                  )}
+                >
+                  <UsersIcon className="h-4 w-4" /> Users
+                </button>
+              )}
             </div>
-            {currentTab === "links" && (
+            {isAdmin && currentTab === "links" && (
               <div className="pr-4">
                 <Button onClick={() => setIsCreating(!isCreating)} className="uppercase font-bold tracking-wider">
                   <Plus className="w-3 h-3 mr-1" /> New Link
@@ -167,30 +289,11 @@ export default function Dashboard() {
           </div>
 
           <div className="flex-1 p-4 sm:p-6 md:p-10 lg:p-16 overflow-y-auto min-h-[70vh]">
-            
-            {isCreating && currentTab === "links" && (
-              <div className="mb-8 border p-6 bg-background shadow-sm">
-                <h3 className="text-sm font-bold uppercase tracking-widest mb-4">Create New Link</h3>
-                <form onSubmit={handleCreateLink} className="flex gap-4">
-                  <Input 
-                    type="url" 
-                    value={newUrl} 
-                    onChange={e => setNewUrl(e.target.value)} 
-                    placeholder="https://example.com" 
-                    required 
-                    autoFocus
-                  />
-                  <Button type="submit" className="uppercase font-semibold">Shorten</Button>
-                  <Button type="button" variant="outline" onClick={() => setIsCreating(false)} className="uppercase font-semibold">Cancel</Button>
-                </form>
-              </div>
-            )}
-
             {currentTab === "overview" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="border p-6 bg-background/50">
                   <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
-                    <Logo className="w-4 h-4" /> Total Links
+                    <Logo className="w-4 h-4" /> {isAdmin ? "Total Links" : "Your Links"}
                   </div>
                   <div className="text-5xl font-light tracking-tight">{links.length}</div>
                 </div>
@@ -202,15 +305,34 @@ export default function Dashboard() {
                 </div>
               </div>
             )}
-            
+
             {currentTab === "links" && (
               <div className="border bg-background/50 overflow-hidden">
+                {isCreating && (
+                  <div className="mb-8 border p-6 bg-background shadow-sm">
+                    <h3 className="text-sm font-bold uppercase tracking-widest mb-4">Create New Link</h3>
+                    <form onSubmit={handleCreateLink} className="flex gap-4">
+                      <Input
+                        type="url"
+                        value={newUrl}
+                        onChange={(e) => setNewUrl(e.target.value)}
+                        placeholder="https://example.com"
+                        required
+                        autoFocus
+                      />
+                      <Button type="submit" className="uppercase font-semibold">Shorten</Button>
+                      <Button type="button" variant="outline" onClick={() => setIsCreating(false)} className="uppercase font-semibold">Cancel</Button>
+                    </form>
+                  </div>
+                )}
+
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                       <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
                         <th className="px-6 py-4">Short Link</th>
                         <th className="px-6 py-4">Destination</th>
+                        {isAdmin && <th className="px-6 py-4">Owner</th>}
                         <th className="px-6 py-4">Clicks</th>
                         <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
@@ -231,17 +353,75 @@ export default function Dashboard() {
                               {link.original_url} <ExternalLink className="w-3 h-3" />
                             </a>
                           </td>
+                          {isAdmin && (
+                            <td className="px-6 py-4 text-sm text-muted-foreground">{link.email || "—"}</td>
+                          )}
                           <td className="px-6 py-4 font-mono text-sm">{link.clicks}</td>
                           <td className="px-6 py-4 text-right">
-                              <button onClick={() => setPendingDelete(link.code)} className="opacity-0 group-hover:opacity-100 p-2 text-muted-foreground hover:text-destructive transition-all">
+                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                              {isAdmin && (
+                                <button onClick={() => openEdit(link)} className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Edit">
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                              )}
+                              <button onClick={() => setPendingDelete(link.code)} className="p-2 text-muted-foreground hover:text-destructive transition-colors" title="Delete">
                                 <Trash2 className="w-4 h-4" />
                               </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
                       {links.length === 0 && (
                         <tr>
-                          <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No links found</td>
+                          <td colSpan={isAdmin ? 5 : 4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No links found</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {currentTab === "users" && isAdmin && (
+              <div className="border bg-background/50 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                      <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
+                        <th className="px-6 py-4">Email</th>
+                        <th className="px-6 py-4">Role</th>
+                        <th className="px-6 py-4">Joined</th>
+                        <th className="px-6 py-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/50">
+                      {users.map((u) => (
+                        <tr key={u.id} className="hover:bg-muted/10 transition-colors">
+                          <td className="px-6 py-4 text-sm">{u.email}</td>
+                          <td className="px-6 py-4 text-xs uppercase tracking-widest text-muted-foreground">{u.role}</td>
+                          <td className="px-6 py-4 text-sm text-muted-foreground">
+                            {new Date(u.created_at * 1000).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => setPendingDeleteUser(u.id)}
+                              disabled={u.id === me?.id}
+                              className={cn(
+                                "p-2 transition-colors",
+                                u.id === me?.id
+                                  ? "text-muted-foreground/40 cursor-not-allowed"
+                                  : "text-muted-foreground hover:text-destructive"
+                              )}
+                              title={u.id === me?.id ? "Cannot delete yourself" : "Delete user"}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {users.length === 0 && (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No users found</td>
                         </tr>
                       )}
                     </tbody>
@@ -282,6 +462,75 @@ export default function Dashboard() {
                 className="flex-1 px-5 py-3 text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10"
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingDeleteUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-sm border border-foreground bg-background">
+            <div className="border-b border-foreground px-5 py-4">
+              <h2 className="text-sm font-bold uppercase tracking-widest">Delete user</h2>
+            </div>
+            <div className="px-5 py-6">
+              <p className="text-sm text-muted-foreground">
+                Permanently delete this user and all their links? This action
+                cannot be undone.
+              </p>
+            </div>
+            <div className="flex border-t border-foreground">
+              <button
+                onClick={() => setPendingDeleteUser(null)}
+                className="flex-1 border-r border-foreground px-5 py-3 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteUser}
+                className="flex-1 px-5 py-3 text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editing && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-sm border border-foreground bg-background">
+            <div className="border-b border-foreground px-5 py-4">
+              <h2 className="text-sm font-bold uppercase tracking-widest">Edit link</h2>
+            </div>
+            <div className="px-5 py-6 space-y-4">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Code</div>
+                <div className="font-mono text-sm">{editing.code}</div>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Destination URL</div>
+                <Input
+                  type="url"
+                  value={editUrl}
+                  onChange={(e) => setEditUrl(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="flex border-t border-foreground">
+              <button
+                onClick={() => setEditing(null)}
+                className="flex-1 border-r border-foreground px-5 py-3 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEdit}
+                className="flex-1 px-5 py-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-muted"
+              >
+                Save
               </button>
             </div>
           </div>
