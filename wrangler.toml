@@ -1,9 +1,9 @@
-name = "shorturl"
+name = "urltrim"
 compatibility_date = "2024-03-20"
 compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
-database_name = "shorturl_db"
+database_name = "urltrim_db"
 database_id = "989fa717-5d2b-4fd2-aa6f-d287404800cd"
 
 

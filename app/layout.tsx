@@ -8,23 +8,23 @@ import { Provider } from "@/components/provider"
 const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shorturl.mosabbir.dev"),
-  title: "ShortURL | Edge-Resolved URL Shortener",
+  metadataBase: new URL("https://urltrim.mosabbir.dev"),
+  title: "urltrim | Edge-Resolved URL Shortener",
   description: "A blazing fast, globally distributed URL shortener built on Cloudflare Workers and D1.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "ShortURL | Edge-Resolved URL Shortener",
+    title: "urltrim | Edge-Resolved URL Shortener",
     description: "A blazing fast, globally distributed URL shortener built on Cloudflare Workers and D1.",
     url: "/",
-    siteName: "ShortURL",
+    siteName: "urltrim",
     images: [
       {
         url: "/og-graph.webp",
         width: 1200,
         height: 630,
-        alt: "ShortURL Mockup",
+        alt: "urltrim Mockup",
       },
     ],
     locale: "en_US",

@@ -76,7 +76,7 @@ export const onRequestPost = async (context: any) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(id, code, originalUrl, 0, createdAt, expiresAt, 1, userId).run();
 
-    let baseUrl = env.BASE_URL || "https://shorturl.pages.dev";
+    let baseUrl = env.BASE_URL || "https://urltrim.pages.dev";
     // Strip trailing slash if present
     if (baseUrl.endsWith("/")) {
       baseUrl = baseUrl.slice(0, -1);

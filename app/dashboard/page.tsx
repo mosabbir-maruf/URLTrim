@@ -90,7 +90,7 @@ export default function Dashboard() {
   };
 
   const copyToClipboard = (code: string) => {
-    navigator.clipboard.writeText(`https://shorturl.pages.dev/${code}`);
+    navigator.clipboard.writeText(`https://urltrim.pages.dev/${code}`);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
@@ -115,7 +115,7 @@ export default function Dashboard() {
         <nav className="flex h-14 items-center justify-between px-2 md:h-12">
           <Link href="/" className="-ml-2 flex h-10 items-center justify-center gap-1.5 px-4 transition-colors hover:bg-muted font-bold tracking-tight">
             <Logo className="w-6 h-6" />
-            <span className="text-lg mt-0.5">ShortURL</span>
+            <span className="text-lg mt-0.5">urltrim</span>
           </Link>
           <div className="flex items-center gap-1">
             <button onClick={handleLogout} className={buttonVariants({ variant: "ghost", size: "sm" })}>

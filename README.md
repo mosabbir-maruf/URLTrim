@@ -3,10 +3,10 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="public/logo-light.png" />
   <source media="(prefers-color-scheme: light)" srcset="public/logo-dark.png" />
-  <img alt="ShortURL Logo" src="public/logo-dark.png" width="60" />
+  <img alt="urltrim Logo" src="public/logo-dark.png" width="60" />
 </picture>
 
-<h1>ShortURL</h1>
+<h1>urltrim</h1>
 
 <p>Edge-resolved URL shortener — millisecond redirects, globally.</p>
 
@@ -32,7 +32,7 @@
 ## 📁 File Structure
 
 ```text
-ShortURL/
+urltrim/
 ├── app/                          # Next.js App Router (UI)
 │   ├── dashboard/                # Dashboard for authenticated users
 │   ├── login/                    # Login page
@@ -94,7 +94,7 @@ New accounts are created with `is_verified = 0`. A branded verification email is
 
 4. **Run Database Migration**
    ```bash
-   npx wrangler d1 execute shorturl_db --file=./migrations/schema.sql
+   npx wrangler d1 execute urltrim_db --file=./migrations/schema.sql
    ```
 
 5. **Production Build**
@@ -114,10 +114,10 @@ ADMIN_EMAILS="your_email@example.com"
 
 # Resend (Email Verification)
 RESEND_API_KEY="re_your_resend_api_key"
-RESEND_FROM_EMAIL="ShortURL <noreply@yourdomain.com>"
+RESEND_FROM_EMAIL="urltrim <noreply@yourdomain.com>"
 
 # Domain Configuration
-BASE_URL="https://shorturl.pages.dev"
+BASE_URL="https://urltrim.pages.dev"
 ```
 
 Generate strong random values for `JWT_SECRET` and `PASSWORD_SALT` (each should be a unique, high-entropy string):
@@ -147,15 +147,15 @@ This project is a Next.js static export (`output: "export"`) served by Cloudflar
    Pages Functions are auto-detected from the `functions/` directory, so no extra configuration is needed.
 2. **Create the D1 Database**
    ```bash
-   npx wrangler d1 create shorturl_db
+   npx wrangler d1 create urltrim_db
    ```
-   The database ID is already set in `wrangler.toml`. In the Pages project settings, add a D1 database binding with variable name `DB` pointing to `shorturl_db`.
+   The database ID is already set in `wrangler.toml`. In the Pages project settings, add a D1 database binding with variable name `DB` pointing to `urltrim_db`.
 3. **Add Environment Variables**
    In **Settings → Variables and Secrets** (use "Secret" for `JWT_SECRET`, `PASSWORD_SALT`, `RESEND_API_KEY`), set the same variables listed in the [⚙️ Environment Variables](#️-environment-variables) section above — just point `BASE_URL` at your live `*.pages.dev` (or custom) domain.
 4. **Run Database Migration**
    After the first successful deploy, run the migration (same command as in [Installation & Setup](#️-installation--setup)):
    ```bash
-   npx wrangler d1 execute shorturl_db --file=./migrations/schema.sql
+   npx wrangler d1 execute urltrim_db --file=./migrations/schema.sql
    ```
 5. **Update Domain**
    Set `BASE_URL` to your assigned domain (or custom domain) once available. Do not run `next start` in production — Pages serves the static `out/` assets with the `functions/` edge handlers.

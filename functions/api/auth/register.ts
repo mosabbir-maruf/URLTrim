@@ -51,7 +51,7 @@ export const onRequestPost = async (context: any) => {
       "INSERT INTO users (id, email, password_hash, role, created_at, is_verified, verification_token) VALUES (?, ?, ?, ?, ?, ?, ?)"
     ).bind(id, email, hashedPassword, role, createdAt, isVerified, verifyToken).run();
     if (resendApiKey) {
-      const baseUrl = env.BASE_URL || "https://shorturl.pages.dev";
+      const baseUrl = env.BASE_URL || "https://urltrim.pages.dev";
       const verifyLink = `${baseUrl}/api/auth/verify?token=${verifyToken}`;
       
       const emailHtml = `
@@ -68,7 +68,7 @@ export const onRequestPost = async (context: any) => {
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td style="font-size:14px;font-weight:bold;letter-spacing:1px;color:#111111;font-family:'Courier New',Courier,monospace;">
-                ⚡ ShortURL
+                ⚡ urltrim
               </td>
               <td align="right">
                 <span style="font-family:'Courier New',Courier,monospace;font-size:9px;font-weight:bold;color:#888888;text-transform:uppercase;letter-spacing:2px;">Email Verification</span>
@@ -86,7 +86,7 @@ export const onRequestPost = async (context: any) => {
           </h1>
           <p style="margin:16px 0 0;font-size:12px;line-height:1.8;color:#888888;font-family:'Courier New',Courier,monospace;">
             Confirm your email to activate your<br/>
-            ShortURL account and start creating links.
+            urltrim account and start creating links.
           </p>
         </td></tr>
 
@@ -143,7 +143,7 @@ export const onRequestPost = async (context: any) => {
         <!-- Disclaimer -->
         <tr><td style="padding:20px 24px;">
           <p style="margin:0;font-family:'Courier New',Courier,monospace;font-size:9px;line-height:1.7;color:#bbbbbb;">
-            If you didn't create a ShortURL account, you can safely ignore this email. This verification link is single-use and will expire automatically.
+            If you didn't create a urltrim account, you can safely ignore this email. This verification link is single-use and will expire automatically.
           </p>
         </td></tr>
 
@@ -175,9 +175,9 @@ export const onRequestPost = async (context: any) => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            from: env.RESEND_FROM_EMAIL || 'ShortURL <noreply@yourdomain.com>',
+            from: env.RESEND_FROM_EMAIL || 'urltrim <noreply@yourdomain.com>',
             to: email,
-            subject: 'Verify your ShortURL account',
+            subject: 'Verify your urltrim account',
             html: emailHtml
           })
         }).then(res => res.json()).catch(err => console.error("Resend Error:", err))

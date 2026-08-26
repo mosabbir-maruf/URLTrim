@@ -23,7 +23,7 @@ export const onRequestGet = async (context: any) => {
     }
 
     if (user.is_verified === 1) {
-      return Response.redirect(`${env.BASE_URL || "https://shorturl.pages.dev"}/login?verified=already`, 302);
+      return Response.redirect(`${env.BASE_URL || "https://urltrim.pages.dev"}/login?verified=already`, 302);
     }
 
     await env.DB
@@ -31,7 +31,7 @@ export const onRequestGet = async (context: any) => {
       .bind(user.id)
       .run();
 
-    return Response.redirect(`${env.BASE_URL || "https://shorturl.pages.dev"}/login?verified=true`, 302);
+    return Response.redirect(`${env.BASE_URL || "https://urltrim.pages.dev"}/login?verified=true`, 302);
   } catch (error: any) {
     console.error("Verify error:", error);
     return new Response("Internal Server Error", { status: 500 });
