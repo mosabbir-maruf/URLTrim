@@ -1,0 +1,4 @@
+# .dev.vars is used by Wrangler for local development secrets
+# Do not commit the actual .dev.vars file to version control
+
+BASE_URL="http://localhost:3000"

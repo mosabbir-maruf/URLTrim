@@ -1,69 +1,68 @@
-import Image from "next/image";
+import { UrlForm } from "@/components/url-form";
+import { Zap, Shield, Link as LinkIcon, BarChart3 } from "lucide-react";
+
+export const metadata = {
+  title: "Shrtn — Simple URL Shortener",
+  description: "Create fast, simple, and shareable short URLs with Shrtn.",
+};
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <main className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 selection:bg-neutral-200 dark:selection:bg-neutral-800 flex flex-col">
+      <div className="flex-1 max-w-5xl w-full mx-auto px-6 pt-24 pb-12 flex flex-col justify-center">
+        <header className="text-center space-y-6">
+          <div className="inline-flex items-center justify-center p-3 bg-neutral-100 dark:bg-neutral-900 rounded-2xl mb-4">
+            <LinkIcon className="w-8 h-8" />
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+            Short links. <span className="text-neutral-400 dark:text-neutral-500">Simple.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
+            Create fast, shareable short URLs in seconds.
           </p>
+        </header>
+
+        <UrlForm />
+
+        <div className="mt-32 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+          <Feature 
+            icon={<Zap />}
+            title="Fast Redirects"
+            description="Built on Edge infrastructure for lightning-fast resolution anywhere in the world."
+          />
+          <Feature 
+            icon={<Shield />}
+            title="Privacy-Friendly"
+            description="We don't inject ads or track personal data. Your privacy is respected."
+          />
+          <Feature 
+            icon={<LinkIcon />}
+            title="Simple Links"
+            description="Clean and short URLs that look professional when shared."
+          />
+          <Feature 
+            icon={<BarChart3 />}
+            title="Free to Use"
+            description="Core features are completely free with no hidden fees or expiration surprises."
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+      
+      <footer className="py-8 text-center text-sm text-neutral-500 dark:text-neutral-400">
+        <p>&copy; {new Date().getFullYear()} Shrtn. Built for speed.</p>
+      </footer>
+    </main>
+  );
+}
+
+function Feature({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+  return (
+    <div className="flex flex-col items-center text-center space-y-3">
+      <div className="p-3 bg-neutral-100 dark:bg-neutral-900 rounded-xl text-neutral-600 dark:text-neutral-300">
+        {icon}
+      </div>
+      <h3 className="font-semibold text-lg">{title}</h3>
+      <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
