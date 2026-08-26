@@ -13,11 +13,8 @@ export const onRequestGet = async (context: any) => {
       .first();
 
     if (!link) {
-      // TEMP DEBUG
-      return new Response(JSON.stringify({ debug: true, code, hasDB: !!env.DB }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
+      // Return 404, fallback to Next.js by using context.next()
+      return context.next();
     }
 
     if (link.is_active === 0) {
