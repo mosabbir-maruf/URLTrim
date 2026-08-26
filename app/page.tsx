@@ -10,6 +10,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 selection:bg-neutral-200 dark:selection:bg-neutral-800 flex flex-col">
       <div className="flex-1 max-w-5xl w-full mx-auto px-6 pt-24 pb-12 flex flex-col justify-center">
+        <header className="text-center space-y-6">
           <div className="absolute top-6 right-6 flex items-center gap-4">
             <a href="/dashboard" className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors">Dashboard</a>
           </div>
