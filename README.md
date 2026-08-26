@@ -1,6 +1,24 @@
-# ShortURL
+<div align="center">
 
-A lightning-fast, secure, and modern URL shortener built on **Cloudflare Pages** and **Edge infrastructure**. Designed for minimal latency and extreme performance, utilizing **Cloudflare D1** for serverless SQL and **Cloudflare Pages Functions** for routing.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/logo-light.png" />
+  <source media="(prefers-color-scheme: light)" srcset="public/logo-dark.png" />
+  <img alt="ShortURL Logo" src="public/logo-dark.png" width="60" />
+</picture>
+
+<h1>ShortURL</h1>
+
+<p>Edge-resolved URL shortener — millisecond redirects, globally.</p>
+
+<p>
+  <a href="https://github.com/mosabbir-maruf"><img src="https://img.shields.io/badge/by-Mosabbir%20Maruf-111111?style=flat-square" alt="Author" /></a>
+  <img src="https://img.shields.io/badge/edge-Cloudflare%20D1-F38020?style=flat-square" alt="Cloudflare" />
+  <img src="https://img.shields.io/badge/stack-Next.js%2016-000000?style=flat-square" alt="Next.js" />
+</p>
+
+<br/>
+
+</div>
 
 ## 🚀 Features
 
