@@ -49,6 +49,7 @@ export default function Dashboard() {
   const [newUrl, setNewUrl] = useState("");
   const [newCode, setNewCode] = useState("");
   const [createError, setCreateError] = useState<string | null>(null);
+  const [showCustom, setShowCustom] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<"overview" | "links" | "users">("overview");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
@@ -469,16 +470,36 @@ export default function Dashboard() {
                           required
                           autoFocus
                         />
-                        <Input
-                          type="text"
-                          value={newCode}
-                          onChange={(e) => setNewCode(e.target.value)}
-                          placeholder="Custom code (optional)"
-                          maxLength={30}
-                        />
+                        {showCustom && (
+                          <Input
+                            type="text"
+                            value={newCode}
+                            onChange={(e) => setNewCode(e.target.value)}
+                            placeholder="Custom code (optional)"
+                            maxLength={30}
+                            autoFocus
+                          />
+                        )}
                         <Button type="submit" className="uppercase font-semibold">Shorten</Button>
-                        <Button type="button" variant="outline" onClick={() => setIsCreating(false)} className="uppercase font-semibold">Cancel</Button>
+                        <Button type="button" variant="outline" onClick={() => { setIsCreating(false); setNewCode(""); setShowCustom(false); setCreateError(null); }} className="uppercase font-semibold">Cancel</Button>
                       </div>
+                      {showCustom ? (
+                        <button
+                          type="button"
+                          onClick={() => { setShowCustom(false); setNewCode(""); }}
+                          className="self-start text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          Use random code instead
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowCustom(true)}
+                          className="self-start inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Custom short code
+                        </button>
+                      )}
                       {createError && (
                         <p className="text-sm text-destructive">{createError}</p>
                       )}

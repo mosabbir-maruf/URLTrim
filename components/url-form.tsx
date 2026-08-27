@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Copy, CheckCircle2, AlertCircle, LoaderCircle } from "lucide-react";
+import { ArrowRight, Copy, CheckCircle2, AlertCircle, LoaderCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ export function UrlForm() {
   const [result, setResult] = useState<{ shortUrl: string; shortCode: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [customCode, setCustomCode] = useState("");
+  const [showCustom, setShowCustom] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,15 +81,36 @@ export function UrlForm() {
              {!isLoading && <span className="ml-2">→</span>}
            </Button>
          </div>
-         <Input
-           type="text"
-           value={customCode}
-           onChange={(e) => setCustomCode(e.target.value)}
-           placeholder="Custom short code (optional, e.g. summer-sale)"
-           className="h-10 px-4 text-sm font-mono bg-background/50 backdrop-blur-sm border-border/60 rounded-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-border/60 shadow-none transition-all"
-           maxLength={30}
-           disabled={isLoading}
-         />
+         {showCustom ? (
+           <div className="flex items-center gap-2">
+             <span className="font-mono text-sm text-muted-foreground select-none">/</span>
+             <Input
+               type="text"
+               value={customCode}
+               onChange={(e) => setCustomCode(e.target.value)}
+               placeholder="custom-alias (e.g. summer-sale)"
+               className="h-10 px-4 text-sm font-mono bg-background/50 backdrop-blur-sm border-border/60 rounded-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-border/60 shadow-none transition-all"
+               maxLength={30}
+               disabled={isLoading}
+               autoFocus
+             />
+             <button
+               type="button"
+               onClick={() => { setShowCustom(false); setCustomCode(""); }}
+               className="shrink-0 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+             >
+               random
+             </button>
+           </div>
+         ) : (
+           <button
+             type="button"
+             onClick={() => setShowCustom(true)}
+             className="self-start inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+           >
+             <Plus className="h-3.5 w-3.5" /> Custom short code
+           </button>
+         )}
        </form>
 
       {error && (
