@@ -73,7 +73,7 @@ export default function Dashboard() {
 
   async function fetchMe() {
     try {
-      const res = await fetch("/api/auth/me", { credentials: "include" });
+      const res = await fetch("/api/auth/me", { credentials: "include", cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         if (data.authenticated) setMe(data.user);
@@ -101,23 +101,23 @@ export default function Dashboard() {
       const endpoint = isAdmin
         ? `/api/admin/links${userId ? `?user_id=${userId}` : ""}`
         : "/api/user/links";
-      const res = await fetch(endpoint, { credentials: "include" });
+      const res = await fetch(endpoint, { credentials: "include", cache: "no-store" });
       if (res.status === 401) {
         router.push("/login");
-        return;
+        return; // Early return prevents setIsLoading(false) and stops the flash
       }
       const data = await res.json();
       if (data.success) setLinks(data.links);
+      setIsLoading(false);
     } catch (err) {
       console.error(err);
-    } finally {
       setIsLoading(false);
     }
   }
 
   async function fetchOverview() {
     try {
-      const res = await fetch("/api/admin/overview", { credentials: "include" });
+      const res = await fetch("/api/admin/overview", { credentials: "include", cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         if (data.success) setOverview(data);
@@ -139,7 +139,7 @@ export default function Dashboard() {
 
   async function fetchUsers() {
     try {
-      const res = await fetch("/api/admin/users", { credentials: "include" });
+      const res = await fetch("/api/admin/users", { credentials: "include", cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         if (data.success) setUsers(data.users);
