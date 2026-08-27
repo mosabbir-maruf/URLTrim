@@ -57,8 +57,8 @@ export default function AdminPage() {
             />
             <Feature
               number="002"
-              title="Authentication"
-              description="Secure JWT payload verification natively on the Edge."
+              title="Dashboard"
+              description="Real-time link management and bulk operations."
             />
             <Feature
               number="003"
