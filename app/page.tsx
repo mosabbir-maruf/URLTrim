@@ -330,10 +330,10 @@ function LimitsSection() {
         </p>
       </div>
       
-      <div className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-center">
+      <div className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-0">
         
         {/* Left Card: Guest */}
-        <div className="w-full max-w-[340px] md:max-w-[320px] border border-border/40 bg-background p-6 sm:p-8 pb-12 md:pb-8 flex flex-col z-0 relative">
+        <div className="w-full max-w-sm md:max-w-[320px] border border-border/40 bg-background p-8 flex flex-col z-0 relative">
           <h3 className="font-mono text-xs text-muted-foreground mb-4 uppercase tracking-widest">Guest Mode</h3>
           <div className="flex items-baseline gap-1.5 mb-4">
             <span className="text-5xl font-bold tracking-tighter">5</span>
@@ -368,7 +368,7 @@ function LimitsSection() {
         </div>
 
         {/* Right Card: Registered */}
-        <div className="w-full max-w-[380px] border border-border/40 bg-muted/30 backdrop-blur-md p-6 sm:p-10 shadow-xl shadow-black/10 dark:shadow-black/50 z-10 -mt-6 md:mt-0 md:-ml-6 flex flex-col relative">
+        <div className="w-full max-w-sm md:max-w-[380px] border border-border/40 bg-muted/30 backdrop-blur-md p-8 md:p-10 shadow-none md:shadow-xl md:shadow-black/10 dark:md:shadow-black/50 z-10 md:-ml-6 flex flex-col relative">
           <h3 className="font-mono text-xs text-muted-foreground mb-4 uppercase tracking-widest">Registered</h3>
           <div className="flex items-baseline gap-1.5 mb-4">
             <span className="text-6xl font-bold tracking-tighter">50</span>
