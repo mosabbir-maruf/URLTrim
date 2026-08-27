@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Copy, CheckCircle2, AlertCircle, LoaderCircle, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Logo } from "@/components/ui/logo";
 
 export function UrlForm() {
   const [url, setUrl] = useState("");
@@ -123,7 +124,7 @@ export function UrlForm() {
              className="h-14 sm:h-auto w-full sm:w-36 uppercase font-mono font-bold tracking-widest text-[11px] rounded-none bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50 transition-all shadow-none border-t sm:border-t-0 sm:border-l border-border/60"
            >
              {isLoading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : "Shorten"}
-             {!isLoading && <span className="ml-2">→</span>}
+             {!isLoading && <Logo className="w-3.5 h-3.5 -ml-1" />}
            </Button>
          </div>
        </form>
