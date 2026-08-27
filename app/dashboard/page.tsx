@@ -53,6 +53,8 @@ export default function Dashboard() {
   const [currentTab, setCurrentTab] = useState<"overview" | "links" | "users">("overview");
   const [selectedLinks, setSelectedLinks] = useState<string[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [pendingBulkDeleteLinks, setPendingBulkDeleteLinks] = useState(false);
+  const [pendingBulkDeleteUsers, setPendingBulkDeleteUsers] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [pendingDeleteUser, setPendingDeleteUser] = useState<string | null>(null);
   const [editing, setEditing] = useState<LinkRow | null>(null);
@@ -179,7 +181,6 @@ export default function Dashboard() {
 
   const confirmBulkDelete = async () => {
     if (selectedLinks.length === 0) return;
-    if (!window.confirm(`Are you sure you want to permanently delete ${selectedLinks.length} selected links?`)) return;
     
     const endpoint = isAdmin ? "/api/admin/links" : "/api/user/links";
       
@@ -196,6 +197,8 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setPendingBulkDeleteLinks(false);
     }
   };
 
@@ -222,7 +225,6 @@ export default function Dashboard() {
       alert("You cannot delete yourself.");
       return;
     }
-    if (!window.confirm(`Are you sure you want to permanently delete ${selectedUsers.length} selected users and all their links?`)) return;
     
     try {
       const res = await fetch("/api/admin/users", {
@@ -240,6 +242,8 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setPendingBulkDeleteUsers(false);
     }
   };
 
@@ -312,14 +316,32 @@ export default function Dashboard() {
   const renderLinksTable = (showOwner: boolean) => (
     <div className="flex flex-col">
       {selectedLinks.length > 0 && (
-        <div className="bg-muted/10 border-b px-6 py-3 flex items-center justify-between">
+        <div className="bg-muted/10 border-b px-6 py-3 flex items-center justify-between min-h-[52px]">
           <span className="text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">{selectedLinks.length} selected</span>
-          <button 
-            onClick={confirmBulkDelete}
-            className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-3 py-2 border border-destructive/20 rounded"
-          >
-            Delete Selected
-          </button>
+          {pendingBulkDeleteLinks ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono tracking-widest text-muted-foreground mr-2 hidden sm:inline">ARE YOU SURE?</span>
+              <button
+                onClick={() => setPendingBulkDeleteLinks(false)}
+                className="text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground px-3 py-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmBulkDelete}
+                className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-3 py-2 border border-destructive/20 rounded bg-background"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={() => setPendingBulkDeleteLinks(true)}
+              className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-3 py-2 border border-destructive/20 rounded bg-background"
+            >
+              Delete Selected
+            </button>
+          )}
         </div>
       )}
       <div className="overflow-x-auto">
@@ -613,14 +635,32 @@ export default function Dashboard() {
               ) : (
                 <div className="border bg-background/50 overflow-hidden flex flex-col">
                   {selectedUsers.length > 0 && (
-                    <div className="bg-muted/10 border-b px-6 py-3 flex items-center justify-between">
+                    <div className="bg-muted/10 border-b px-6 py-3 flex items-center justify-between min-h-[52px]">
                       <span className="text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">{selectedUsers.length} selected</span>
-                      <button 
-                        onClick={confirmBulkDeleteUsers}
-                        className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-3 py-2 border border-destructive/20 rounded"
-                      >
-                        Delete Selected
-                      </button>
+                      {pendingBulkDeleteUsers ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono tracking-widest text-muted-foreground mr-2 hidden sm:inline">ARE YOU SURE?</span>
+                          <button
+                            onClick={() => setPendingBulkDeleteUsers(false)}
+                            className="text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground px-3 py-2"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={confirmBulkDeleteUsers}
+                            className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-3 py-2 border border-destructive/20 rounded bg-background"
+                          >
+                            Confirm Delete
+                          </button>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => setPendingBulkDeleteUsers(true)}
+                          className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-3 py-2 border border-destructive/20 rounded bg-background"
+                        >
+                          Delete Selected
+                        </button>
+                      )}
                     </div>
                   )}
                   <div className="overflow-x-auto">
