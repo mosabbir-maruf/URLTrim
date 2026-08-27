@@ -16,11 +16,45 @@ export const onRequestPost = async (context: any) => {
       return new Response(JSON.stringify({ success: false, error: "Database not bound." }), { status: 500, headers: { "Content-Type": "application/json" } });
     }
 
+    const db = env.DB;
     // Check Auth (optional)
     const user = await authenticate(context);
     const userId = user?.sub || null;
+    
+    // Better IP resolution with fallbacks for local dev
+    const ipAddress = request.headers.get("CF-Connecting-IP") || 
+                      request.headers.get("x-forwarded-for")?.split(",")[0].trim() || 
+                      request.headers.get("x-real-ip") || 
+                      "127.0.0.1";
 
-    const db = env.DB;
+    // Rate Limiting
+    const oneDayAgo = Math.floor(Date.now() / 1000) - (24 * 60 * 60);
+    
+    if (!userId) {
+      // Guest Rate Limit (5 per day)
+      // Check if ip_address column exists using a try-catch for backwards compatibility during migration deployment
+      try {
+        const result = await db.prepare("SELECT COUNT(*) as count FROM links WHERE ip_address = ? AND created_at > ?")
+          .bind(ipAddress, oneDayAgo)
+          .first();
+        const count = (result?.count as number) || 0;
+        if (count >= 5) {
+          return new Response(JSON.stringify({ success: false, error: "You've reached the guest limit of 5 links per day. Please login for better short links." }), { status: 429, headers: { "Content-Type": "application/json" } });
+        }
+      } catch (e) {
+        // If the column doesn't exist yet, we silently skip the guest rate limit until migration runs
+      }
+    } else if (user.role !== "admin") {
+      // Logged-in User Rate Limit (50 per day)
+      const result = await db.prepare("SELECT COUNT(*) as count FROM links WHERE user_id = ? AND created_at > ?")
+        .bind(userId, oneDayAgo)
+        .first();
+      const count = (result?.count as number) || 0;
+      if (count >= 50) {
+        return new Response(JSON.stringify({ success: false, error: "You've reached your daily limit of 50 links. Please try again tomorrow." }), { status: 429, headers: { "Content-Type": "application/json" } });
+      }
+    }
+
     const originalUrl = result.data.url;
 
     // Resolve the short code: prefer a custom alias when provided, otherwise auto-generate.
@@ -70,10 +104,22 @@ export const onRequestPost = async (context: any) => {
     }
 
     try {
-      await db.prepare(`
-        INSERT INTO links (id, code, original_url, clicks, created_at, expires_at, is_active, user_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `).bind(id, code, originalUrl, 0, createdAt, expiresAt, 1, userId).run();
+      try {
+        await db.prepare(`
+          INSERT INTO links (id, code, original_url, clicks, created_at, expires_at, is_active, user_id, ip_address)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(id, code, originalUrl, 0, createdAt, expiresAt, 1, userId, ipAddress).run();
+      } catch (e: any) {
+        // Fallback if the ip_address column migration hasn't run yet
+        if (e.message && e.message.includes("has no column named ip_address")) {
+          await db.prepare(`
+            INSERT INTO links (id, code, original_url, clicks, created_at, expires_at, is_active, user_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(id, code, originalUrl, 0, createdAt, expiresAt, 1, userId).run();
+        } else {
+          throw e;
+        }
+      }
     } catch (insertErr: any) {
       // Final guard against race conditions / duplicates (code column is UNIQUE).
       if (/unique constraint failed/i.test(insertErr?.message ?? "")) {
