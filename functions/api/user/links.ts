@@ -48,14 +48,16 @@ export const onRequestDelete = async (context: any) => {
   if (!codes || codes.length === 0) return new Response("Missing code", { status: 400 });
 
   const chunkSize = 100;
-  let totalDeleted = 0;
+  const statements: any[] = [];
 
   for (let i = 0; i < codes.length; i += chunkSize) {
     const chunk = codes.slice(i, i + chunkSize);
     const placeholders = chunk.map(() => '?').join(',');
-    const result = await env.DB.prepare(`DELETE FROM links WHERE code IN (${placeholders}) AND user_id = ?`).bind(...chunk, user.sub).run();
-    totalDeleted += result.meta.changes;
+    statements.push(env.DB.prepare(`DELETE FROM links WHERE code IN (${placeholders}) AND user_id = ?`).bind(...chunk, user.sub));
   }
+
+  const results = await env.DB.batch(statements);
+  const totalDeleted = results.reduce((sum: number, res: any) => sum + res.meta.changes, 0);
 
   if (totalDeleted === 0) {
     return new Response(JSON.stringify({ success: false, error: "Links not found or unauthorized" }), { status: 404 });

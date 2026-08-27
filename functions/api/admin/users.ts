@@ -38,18 +38,28 @@ export const onRequestDelete = async (context: any) => {
 
   // Chunking to prevent SQLite max variable limits (usually 999)
   const chunkSize = 100;
-  let totalDeleted = 0;
+  const statements: any[] = [];
 
   for (let i = 0; i < validIds.length; i += chunkSize) {
     const chunk = validIds.slice(i, i + chunkSize);
     const placeholders = chunk.map(() => '?').join(',');
 
     // Delete all links owned by these users
-    await env.DB.prepare(`DELETE FROM links WHERE user_id IN (${placeholders})`).bind(...chunk).run();
-    
+    statements.push(
+      env.DB.prepare(`DELETE FROM links WHERE user_id IN (${placeholders})`).bind(...chunk)
+    );
     // Delete users
-    const result = await env.DB.prepare(`DELETE FROM users WHERE id IN (${placeholders})`).bind(...chunk).run();
-    totalDeleted += result.meta.changes;
+    statements.push(
+      env.DB.prepare(`DELETE FROM users WHERE id IN (${placeholders})`).bind(...chunk)
+    );
+  }
+
+  const results = await env.DB.batch(statements);
+  
+  // The results array matches the statements array. Every odd index is the DELETE FROM users query result.
+  let totalDeleted = 0;
+  for (let i = 1; i < results.length; i += 2) {
+    totalDeleted += results[i].meta.changes;
   }
 
   if (totalDeleted === 0) {

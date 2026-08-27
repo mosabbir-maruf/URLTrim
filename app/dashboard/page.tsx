@@ -234,7 +234,9 @@ export default function Dashboard() {
         body: JSON.stringify({ ids: selectedUsers })
       });
       if (res.ok) {
+        const deletedEmails = users.filter(u => selectedUsers.includes(u.id)).map(u => u.email);
         setUsers(users.filter((u) => !selectedUsers.includes(u.id)));
+        setLinks(links.filter((l) => !l.email || !deletedEmails.includes(l.email)));
         setSelectedUsers([]);
       } else {
         const d = await res.json().catch(() => ({}));
@@ -255,7 +257,11 @@ export default function Dashboard() {
         credentials: "include",
       });
       if (res.ok) {
+        const deletedEmail = users.find(u => u.id === pendingDeleteUser)?.email;
         setUsers(users.filter((u) => u.id !== pendingDeleteUser));
+        if (deletedEmail) {
+          setLinks(links.filter((l) => l.email !== deletedEmail));
+        }
       }
     } catch (err) {
       console.error(err);
