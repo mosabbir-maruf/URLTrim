@@ -35,7 +35,7 @@ export function HeaderAuth() {
   if (isLoggedIn) {
     return (
       <div className="flex items-center gap-2">
-        <Link href="/dashboard" className={buttonVariants({ variant: "ghost", size: "sm" })}>Dashboard</Link>
+        <Link href="/dashboard" className={buttonVariants({ size: "sm" })}>Dashboard</Link>
       </div>
     );
   }
