@@ -17,7 +17,7 @@ export const onRequestPost = async (context: any) => {
     const result = urlSchema.safeParse(body);
 
     if (!result.success) {
-      return new Response(JSON.stringify({ success: false, error: "Invalid URL provided." }), { status: 400, headers: { "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ success: false, error: result.error.issues[0]?.message ?? "Invalid URL provided." }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
 
     if (!env.DB) {

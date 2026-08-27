@@ -19,16 +19,17 @@ export const urlSchema = z.object({
     .string()
     .transform(normalizeUrl)
     .pipe(
-      z
-        .string()
-        .url()
-        .refine((url) => {
-          try {
-            const parsed = new URL(url);
-            return parsed.protocol === "http:" || parsed.protocol === "https:";
-          } catch {
-            return false;
-          }
-        }, "Only HTTP and HTTPS URLs are allowed")
+      z.string().refine((url) => {
+        try {
+          const parsed = new URL(url);
+          // Require http/https and a real domain (hostname must contain a dot),
+          // so bare text like "djhaefsjbhsfd" is rejected rather than shortened.
+          if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+          if (!parsed.hostname.includes(".")) return false;
+          return true;
+        } catch {
+          return false;
+        }
+      }, "Please enter a valid URL with a domain (e.g. example.com)")
     ),
 });
