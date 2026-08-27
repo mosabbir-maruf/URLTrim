@@ -16,24 +16,28 @@ export const onRequestDelete = async (context: any) => {
 
   const { request, env } = context;
   const url = new URL(request.url);
-  const id = url.searchParams.get("id");
+  const ids = url.searchParams.getAll("id");
 
-  if (!id) return new Response("Missing id", { status: 400 });
+  if (!ids || ids.length === 0) return new Response("Missing id", { status: 400 });
 
-  // Prevent self-deletion
-  if (id === admin.sub) {
+  // Prevent self-deletion by filtering out admin's own ID
+  const validIds = ids.filter(id => id !== admin.sub);
+  
+  if (validIds.length === 0) {
     return new Response(JSON.stringify({ success: false, error: "Cannot delete yourself" }), { status: 400 });
   }
 
-  // Delete all links owned by this user
-  await env.DB.prepare("DELETE FROM links WHERE user_id = ?").bind(id).run();
+  const placeholders = validIds.map(() => '?').join(',');
+
+  // Delete all links owned by these users
+  await env.DB.prepare(`DELETE FROM links WHERE user_id IN (${placeholders})`).bind(...validIds).run();
   
-  // Delete user
-  const result = await env.DB.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
+  // Delete users
+  const result = await env.DB.prepare(`DELETE FROM users WHERE id IN (${placeholders})`).bind(...validIds).run();
 
   if (result.meta.changes === 0) {
-    return new Response(JSON.stringify({ success: false, error: "User not found" }), { status: 404 });
+    return new Response(JSON.stringify({ success: false, error: "Users not found" }), { status: 404 });
   }
 
-  return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ success: true, deleted: result.meta.changes }), { headers: { "Content-Type": "application/json" } });
 };

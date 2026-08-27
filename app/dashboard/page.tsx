@@ -51,6 +51,8 @@ export default function Dashboard() {
   const [showCustom, setShowCustom] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<"overview" | "links" | "users">("overview");
+  const [selectedLinks, setSelectedLinks] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [pendingDeleteUser, setPendingDeleteUser] = useState<string | null>(null);
   const [editing, setEditing] = useState<LinkRow | null>(null);
@@ -175,6 +177,28 @@ export default function Dashboard() {
     }
   };
 
+  const confirmBulkDelete = async () => {
+    if (selectedLinks.length === 0) return;
+    if (!window.confirm(`Are you sure you want to permanently delete ${selectedLinks.length} selected links?`)) return;
+    
+    const params = new URLSearchParams();
+    selectedLinks.forEach(code => params.append("code", code));
+    
+    const endpoint = isAdmin
+      ? `/api/admin/links?${params.toString()}`
+      : `/api/user/links?${params.toString()}`;
+      
+    try {
+      const res = await fetch(endpoint, { method: "DELETE", credentials: "include" });
+      if (res.ok) {
+        setLinks(links.filter((l) => !selectedLinks.includes(l.code)));
+        setSelectedLinks([]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!pendingDelete) return;
     const endpoint = isAdmin
@@ -189,6 +213,31 @@ export default function Dashboard() {
       console.error(err);
     } finally {
       setPendingDelete(null);
+    }
+  };
+
+  const confirmBulkDeleteUsers = async () => {
+    if (selectedUsers.length === 0) return;
+    if (selectedUsers.includes(me?.id as string)) {
+      alert("You cannot delete yourself.");
+      return;
+    }
+    if (!window.confirm(`Are you sure you want to permanently delete ${selectedUsers.length} selected users and all their links?`)) return;
+    
+    const params = new URLSearchParams();
+    selectedUsers.forEach(id => params.append("id", id));
+      
+    try {
+      const res = await fetch(`/api/admin/users?${params.toString()}`, { method: "DELETE", credentials: "include" });
+      if (res.ok) {
+        setUsers(users.filter((u) => !selectedUsers.includes(u.id)));
+        setSelectedUsers([]);
+      } else {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || "Failed to delete users");
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -259,22 +308,54 @@ export default function Dashboard() {
   }
 
   const renderLinksTable = (showOwner: boolean) => (
-    <div className="overflow-x-auto">
-      <table className="w-full text-left border-collapse whitespace-nowrap">
-        <thead>
-          <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
-            <th className="px-6 py-4">Short Link</th>
-            <th className="px-6 py-4">Destination</th>
-            {showOwner && <th className="px-6 py-4">Owner</th>}
-            <th className="px-6 py-4">Clicks</th>
-            <th className="px-6 py-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border/50">
-          {links.map((link) => (
-            <tr key={link.id} className="hover:bg-muted/10 transition-colors group">
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-3">
+    <div className="flex flex-col">
+      {selectedLinks.length > 0 && (
+        <div className="bg-muted/10 border-b px-6 py-3 flex items-center justify-between">
+          <span className="text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">{selectedLinks.length} selected</span>
+          <button 
+            onClick={confirmBulkDelete}
+            className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-3 py-2 border border-destructive/20 rounded"
+          >
+            Delete Selected
+          </button>
+        </div>
+      )}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse whitespace-nowrap">
+          <thead>
+            <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
+              <th className="px-6 py-4 w-12">
+                <input 
+                  type="checkbox" 
+                  className="rounded border-foreground/20 bg-background accent-foreground w-4 h-4 cursor-pointer"
+                  checked={links.length > 0 && selectedLinks.length === links.length}
+                  onChange={(e) => setSelectedLinks(e.target.checked ? links.map(l => l.code) : [])}
+                  title="Select All"
+                />
+              </th>
+              <th className="px-6 py-4">Short Link</th>
+              <th className="px-6 py-4">Destination</th>
+              {showOwner && <th className="px-6 py-4">Owner</th>}
+              <th className="px-6 py-4">Clicks</th>
+              <th className="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/50">
+            {links.map((link) => (
+              <tr key={link.id} className="hover:bg-muted/10 transition-colors group">
+                <td className="px-6 py-4">
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-foreground/20 bg-background accent-foreground w-4 h-4 cursor-pointer"
+                    checked={selectedLinks.includes(link.code)}
+                    onChange={(e) => {
+                      if (e.target.checked) setSelectedLinks([...selectedLinks, link.code]);
+                      else setSelectedLinks(selectedLinks.filter(c => c !== link.code));
+                    }}
+                  />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
                   <span className="font-mono text-sm">{link.code}</span>
                   <button onClick={() => copyToClipboard(link.code)} className="text-muted-foreground hover:text-foreground transition-colors">
                     {copiedCode === link.code ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -323,11 +404,12 @@ export default function Dashboard() {
           ))}
           {links.length === 0 && (
             <tr>
-              <td colSpan={showOwner ? 5 : 4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No links found</td>
+              <td colSpan={showOwner ? 6 : 5} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No links found</td>
             </tr>
           )}
         </tbody>
       </table>
+    </div>
     </div>
   );
 
@@ -527,11 +609,31 @@ export default function Dashboard() {
                   {renderLinksTable(false)}
                 </div>
               ) : (
-                <div className="border bg-background/50 overflow-hidden">
+                <div className="border bg-background/50 overflow-hidden flex flex-col">
+                  {selectedUsers.length > 0 && (
+                    <div className="bg-muted/10 border-b px-6 py-3 flex items-center justify-between">
+                      <span className="text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">{selectedUsers.length} selected</span>
+                      <button 
+                        onClick={confirmBulkDeleteUsers}
+                        className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-3 py-2 border border-destructive/20 rounded"
+                      >
+                        Delete Selected
+                      </button>
+                    </div>
+                  )}
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse whitespace-nowrap">
                       <thead>
                         <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
+                          <th className="px-6 py-4 w-12">
+                            <input 
+                              type="checkbox" 
+                              className="rounded border-foreground/20 bg-background accent-foreground w-4 h-4 cursor-pointer"
+                              checked={users.length > 0 && selectedUsers.length === users.length}
+                              onChange={(e) => setSelectedUsers(e.target.checked ? users.map(u => u.id) : [])}
+                              title="Select All"
+                            />
+                          </th>
                           <th className="px-6 py-4">Email</th>
                           <th className="px-6 py-4">Role</th>
                           <th className="px-6 py-4">Joined</th>
@@ -541,6 +643,17 @@ export default function Dashboard() {
                       <tbody className="divide-y divide-border/50">
                         {users.map((u) => (
                           <tr key={u.id} className="hover:bg-muted/10 transition-colors group">
+                            <td className="px-6 py-4">
+                              <input 
+                                type="checkbox" 
+                                className="rounded border-foreground/20 bg-background accent-foreground w-4 h-4 cursor-pointer"
+                                checked={selectedUsers.includes(u.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) setSelectedUsers([...selectedUsers, u.id]);
+                                  else setSelectedUsers(selectedUsers.filter(id => id !== u.id));
+                                }}
+                              />
+                            </td>
                             <td className="px-6 py-4 text-sm">
                               <button
                                 onClick={() => openUserLinks(u)}
@@ -590,7 +703,7 @@ export default function Dashboard() {
                         ))}
                         {users.length === 0 && (
                           <tr>
-                            <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No users found</td>
+                            <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No users found</td>
                           </tr>
                         )}
                       </tbody>

@@ -62,15 +62,16 @@ export const onRequestDelete = async (context: any) => {
 
   const { request, env } = context;
   const url = new URL(request.url);
-  const code = url.searchParams.get("code");
+  const codes = url.searchParams.getAll("code");
 
-  if (!code) return new Response("Missing code", { status: 400 });
+  if (!codes || codes.length === 0) return new Response("Missing code", { status: 400 });
 
-  const result = await env.DB.prepare("DELETE FROM links WHERE code = ?").bind(code).run();
+  const placeholders = codes.map(() => '?').join(',');
+  const result = await env.DB.prepare(`DELETE FROM links WHERE code IN (${placeholders})`).bind(...codes).run();
 
   if (result.meta.changes === 0) {
-    return new Response(JSON.stringify({ success: false, error: "Link not found" }), { status: 404 });
+    return new Response(JSON.stringify({ success: false, error: "Links not found" }), { status: 404 });
   }
 
-  return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ success: true, deleted: result.meta.changes }), { headers: { "Content-Type": "application/json" } });
 };
