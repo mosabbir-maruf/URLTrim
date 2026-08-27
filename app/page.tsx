@@ -5,7 +5,6 @@ import { Marquee } from "@/components/ui/marquee"
 import { AdminFooter } from "@/components/admin-chrome";
 import { SocialIcon } from "@/components/ui/icons";
 import { UrlForm } from "@/components/url-form";
-import { LinkIcon } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 
 export default function AdminPage() {

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LoaderCircle, Link as LinkIcon } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminFooter as Footer } from "@/components/admin-chrome";
+import { Logo } from "@/components/ui/logo";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -44,10 +45,10 @@ export default function RegisterPage() {
     <div className="flex min-h-svh flex-col bg-background">
       <header className="sticky top-0 z-50 mx-auto w-full max-w-6xl border-x bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/50">
         <nav className="flex h-14 items-center justify-between px-2 md:h-12">
-          <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-            <LinkIcon className="w-4 h-4" />
-            <span>urltrim</span>
-          </Link>
+            <Link href="/" className="-ml-2 flex h-10 items-center justify-center gap-1.5 px-4 transition-colors hover:bg-muted font-bold tracking-tight">
+              <Logo className="w-6 h-6" />
+              <span className="text-lg mt-0.5">urltrim</span>
+            </Link>
           <div className="flex items-center gap-1">
             <Link href="/" className={buttonVariants({ variant: "ghost", size: "sm" })}>
               Home
