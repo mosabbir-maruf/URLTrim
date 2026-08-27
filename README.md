@@ -27,7 +27,8 @@
 ## 🚀 Features
 
 - **Edge Network:** Global CDN resolution with milliseconds latency.
-- **Enterprise Security:** Environment-variable-based admin whitelisting, real-time JWT role revocation via Edge DB lookups, and email verification via [Resend](https://resend.com).
+- **Dashboard Management:** Real-time link management, bulk deletion via D1 batching, and custom alias support.
+- **Enterprise Security:** Rate limiting by IP and User ID, admin whitelisting, real-time JWT role revocation, and email verification.
 - **Email Verification:** New users must verify their email before logging in. Branded, on-theme HTML email templates sent through Resend.
 - **D1 Database:** Serverless SQL capabilities for high-performance indexing and fast URL resolution.
 - **Analytics:** Built-in click tracking on every redirect.
@@ -49,6 +50,8 @@ URLTrim/
 │       ├── shorten.ts            # URL shortening endpoint
 │       ├── auth/
 │       │   ├── login.ts          # Login with JWT cookie
+│       │   ├── logout.ts         # Clears JWT cookie
+│       │   ├── me.ts             # Returns active user session
 │       │   ├── register.ts       # Registration + Resend email verification
 │       │   └── verify.ts         # Email verification endpoint
 │       ├── admin/
@@ -77,6 +80,9 @@ Admin API routes do **not** trust the role stored in the JWT cookie. Instead, ev
 
 ### Email Verification
 New accounts are created with `is_verified = 0`. A branded verification email is sent via Resend containing a unique single-use token. Users **cannot log in** until they click the verification link. The token is cleared from the database after use.
+
+### Edge Rate Limiting
+To prevent abuse and database exhaustion, URL shortening is strictly rate-limited at the Edge. Unauthenticated guests are limited to 5 links per day (tracked via IP), and authenticated users are limited to 50 links per day (tracked via `user_id`).
 
 ## 🛠️ Installation & Setup
 
