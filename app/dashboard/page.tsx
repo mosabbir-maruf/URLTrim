@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   Pencil,
   Users as UsersIcon,
+  ArrowLeft,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,35 +54,51 @@ export default function Dashboard() {
   const [editing, setEditing] = useState<LinkRow | null>(null);
   const [editUrl, setEditUrl] = useState("");
   const [me, setMe] = useState<{ id: string; email: string; role: string } | null>(null);
+  const [overview, setOverview] = useState<{
+    totalLinks: number;
+    userLinks: number;
+    userClicks: number;
+  } | null>(null);
+  const [viewUser, setViewUser] = useState<{ id: string; email: string } | null>(null);
   const router = useRouter();
 
   const isAdmin = me?.role === "admin";
 
   useEffect(() => {
     fetchMe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchMe = async () => {
+  async function fetchMe() {
     try {
       const res = await fetch("/api/auth/me", { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         if (data.authenticated) setMe(data.user);
+        else router.push("/login");
+      } else {
+        router.push("/login");
       }
     } catch (err) {
       console.error(err);
     }
-  };
+  }
 
   useEffect(() => {
+    if (!me) return;
     fetchLinks();
-    if (isAdmin) fetchUsers();
+    if (isAdmin) {
+      fetchUsers();
+      fetchOverview();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin]);
+  }, [me]);
 
-  const fetchLinks = async () => {
+  async function fetchLinks(userId?: string) {
     try {
-      const endpoint = isAdmin ? "/api/admin/links" : "/api/user/links";
+      const endpoint = isAdmin
+        ? `/api/admin/links${userId ? `?user_id=${userId}` : ""}`
+        : "/api/user/links";
       const res = await fetch(endpoint, { credentials: "include" });
       if (res.status === 401) {
         router.push("/login");
@@ -94,9 +111,31 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function fetchOverview() {
+    try {
+      const res = await fetch("/api/admin/overview", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) setOverview(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const openUserLinks = (u: UserRow) => {
+    setViewUser({ id: u.id, email: u.email });
+    fetchLinks(u.id);
   };
 
-  const fetchUsers = async () => {
+  const closeUserLinks = () => {
+    setViewUser(null);
+    fetchLinks();
+  };
+
+  async function fetchUsers() {
     try {
       const res = await fetch("/api/admin/users", { credentials: "include" });
       if (res.ok) {
@@ -106,7 +145,7 @@ export default function Dashboard() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }
 
   const handleCreateLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,6 +253,79 @@ export default function Dashboard() {
 
   const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0);
 
+  const renderLinksTable = (showOwner: boolean) => (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse whitespace-nowrap">
+        <thead>
+          <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
+            <th className="px-6 py-4">Short Link</th>
+            <th className="px-6 py-4">Destination</th>
+            {showOwner && <th className="px-6 py-4">Owner</th>}
+            <th className="px-6 py-4">Clicks</th>
+            <th className="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border/50">
+          {links.map((link) => (
+            <tr key={link.id} className="hover:bg-muted/10 transition-colors group">
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-sm">{link.code}</span>
+                  <button onClick={() => copyToClipboard(link.code)} className="text-muted-foreground hover:text-foreground transition-colors">
+                    {copiedCode === link.code ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
+              </td>
+              <td className="px-6 py-4">
+                <a href={link.original_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground truncate max-w-xs transition-colors">
+                  {link.original_url} <ExternalLink className="w-3 h-3" />
+                </a>
+              </td>
+              {showOwner && (
+                <td className="px-6 py-4 text-sm text-muted-foreground">{link.email || "—"}</td>
+              )}
+              <td className="px-6 py-4 font-mono text-sm">{link.clicks}</td>
+              <td className="px-6 py-4 text-right">
+                {pendingDelete === link.code ? (
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => setPendingDelete(null)}
+                      className="text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground px-2 py-1"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmDelete}
+                      className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-2 py-1"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    {isAdmin && (
+                      <button onClick={() => openEdit(link)} className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Edit">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button onClick={() => setPendingDelete(link.code)} className="p-2 text-muted-foreground hover:text-destructive transition-colors" title="Delete">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
+          {links.length === 0 && (
+            <tr>
+              <td colSpan={showOwner ? 5 : 4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No links found</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
     <div className="flex min-h-svh flex-col bg-background relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -244,7 +356,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between border-b bg-muted/10 overflow-x-auto px-2">
             <div className="flex items-center">
               <button
-                onClick={() => setCurrentTab("overview")}
+                onClick={() => { setCurrentTab("overview"); closeUserLinks(); }}
                 className={cn(
                   "flex items-center gap-2 px-6 py-4 text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
                   currentTab === "overview"
@@ -255,7 +367,7 @@ export default function Dashboard() {
                 <LayoutDashboard className="h-4 w-4" /> Overview
               </button>
               <button
-                onClick={() => setCurrentTab("links")}
+                onClick={() => { setCurrentTab("links"); closeUserLinks(); }}
                 className={cn(
                   "flex items-center gap-2 px-6 py-4 text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
                   currentTab === "links"
@@ -290,20 +402,51 @@ export default function Dashboard() {
 
           <div className="flex-1 p-4 sm:p-6 md:p-10 lg:p-16 overflow-y-auto min-h-[70vh]">
             {currentTab === "overview" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="border p-6 bg-background/50">
-                  <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
-                    <Logo className="w-4 h-4" /> {isAdmin ? "Total Links" : "Your Links"}
+              <>
+                {isAdmin ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="border p-6 bg-background/50">
+                      <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
+                        <Logo className="w-4 h-4" /> Admin Links
+                      </div>
+                      <div className="text-5xl font-light tracking-tight">{links.length}</div>
+                    </div>
+                    <div className="border p-6 bg-background/50">
+                      <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
+                        <LinkIcon className="w-4 h-4" /> Total Links
+                      </div>
+                      <div className="text-5xl font-light tracking-tight">{overview?.totalLinks ?? 0}</div>
+                    </div>
+                    <div className="border p-6 bg-background/50">
+                      <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
+                        <UsersIcon className="w-4 h-4" /> All User Links
+                      </div>
+                      <div className="text-5xl font-light tracking-tight">{overview?.userLinks ?? 0}</div>
+                    </div>
+                    <div className="border p-6 bg-background/50">
+                      <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
+                        <BarChart2 className="w-4 h-4" /> All User Clicks
+                      </div>
+                      <div className="text-5xl font-light tracking-tight">{overview?.userClicks ?? 0}</div>
+                    </div>
                   </div>
-                  <div className="text-5xl font-light tracking-tight">{links.length}</div>
-                </div>
-                <div className="border p-6 bg-background/50">
-                  <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
-                    <BarChart2 className="w-4 h-4" /> Total Clicks
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="border p-6 bg-background/50">
+                      <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
+                        <Logo className="w-4 h-4" /> Your Links
+                      </div>
+                      <div className="text-5xl font-light tracking-tight">{links.length}</div>
+                    </div>
+                    <div className="border p-6 bg-background/50">
+                      <div className="flex items-center gap-2 text-muted-foreground uppercase text-xs font-bold tracking-widest mb-4">
+                        <BarChart2 className="w-4 h-4" /> Total Clicks
+                      </div>
+                      <div className="text-5xl font-light tracking-tight">{totalClicks}</div>
+                    </div>
                   </div>
-                  <div className="text-5xl font-light tracking-tight">{totalClicks}</div>
-                </div>
-              </div>
+                )}
+              </>
             )}
 
             {currentTab === "links" && (
@@ -326,142 +469,98 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse whitespace-nowrap">
-                    <thead>
-                      <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
-                        <th className="px-6 py-4">Short Link</th>
-                        <th className="px-6 py-4">Destination</th>
-                        {isAdmin && <th className="px-6 py-4">Owner</th>}
-                        <th className="px-6 py-4">Clicks</th>
-                        <th className="px-6 py-4 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/50">
-                      {links.map((link) => (
-                        <tr key={link.id} className="hover:bg-muted/10 transition-colors group">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <span className="font-mono text-sm">{link.code}</span>
-                              <button onClick={() => copyToClipboard(link.code)} className="text-muted-foreground hover:text-foreground transition-colors">
-                                {copiedCode === link.code ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                              </button>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <a href={link.original_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground truncate max-w-xs transition-colors">
-                              {link.original_url} <ExternalLink className="w-3 h-3" />
-                            </a>
-                          </td>
-                          {isAdmin && (
-                            <td className="px-6 py-4 text-sm text-muted-foreground">{link.email || "—"}</td>
-                          )}
-                          <td className="px-6 py-4 font-mono text-sm">{link.clicks}</td>
-                          <td className="px-6 py-4 text-right">
-                            {pendingDelete === link.code ? (
-                              <div className="flex items-center justify-end gap-2">
-                                <button
-                                  onClick={() => setPendingDelete(null)}
-                                  className="text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground px-2 py-1"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  onClick={confirmDelete}
-                                  className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-2 py-1"
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                {isAdmin && (
-                                  <button onClick={() => openEdit(link)} className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Edit">
-                                    <Pencil className="w-4 h-4" />
-                                  </button>
-                                )}
-                                <button onClick={() => setPendingDelete(link.code)} className="p-2 text-muted-foreground hover:text-destructive transition-colors" title="Delete">
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                      {links.length === 0 && (
-                        <tr>
-                          <td colSpan={isAdmin ? 5 : 4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No links found</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                {renderLinksTable(isAdmin)}
               </div>
             )}
 
             {currentTab === "users" && isAdmin && (
-              <div className="border bg-background/50 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse whitespace-nowrap">
-                    <thead>
-                      <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
-                        <th className="px-6 py-4">Email</th>
-                        <th className="px-6 py-4">Role</th>
-                        <th className="px-6 py-4">Joined</th>
-                        <th className="px-6 py-4 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/50">
-                      {users.map((u) => (
-                        <tr key={u.id} className="hover:bg-muted/10 transition-colors">
-                          <td className="px-6 py-4 text-sm">{u.email}</td>
-                          <td className="px-6 py-4 text-xs uppercase tracking-widest text-muted-foreground">{u.role}</td>
-                          <td className="px-6 py-4 text-sm text-muted-foreground">
-                            {new Date(u.created_at * 1000).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            {pendingDeleteUser === u.id ? (
-                              <div className="flex items-center justify-end gap-2">
-                                <button
-                                  onClick={() => setPendingDeleteUser(null)}
-                                  className="text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground px-2 py-1"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  onClick={confirmDeleteUser}
-                                  className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-2 py-1"
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => setPendingDeleteUser(u.id)}
-                                disabled={u.id === me?.id}
-                                className={cn(
-                                  "p-2 transition-colors",
-                                  u.id === me?.id
-                                    ? "text-muted-foreground/40 cursor-not-allowed"
-                                    : "text-muted-foreground hover:text-destructive"
-                                )}
-                                title={u.id === me?.id ? "Cannot delete yourself" : "Delete user"}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                      {users.length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No users found</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+              viewUser ? (
+                <div className="border bg-background/50 overflow-hidden">
+                  <div className="flex items-center justify-between border-b bg-muted/10 px-4 py-3">
+                    <button
+                      onClick={closeUserLinks}
+                      className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-muted/30 px-3 py-2"
+                    >
+                      <ArrowLeft className="w-4 h-4" /> Back to users
+                    </button>
+                    <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-muted-foreground">
+                      <UsersIcon className="w-4 h-4" /> {viewUser.email}&apos;s Links
+                    </div>
+                  </div>
+                  {renderLinksTable(false)}
                 </div>
-              </div>
+              ) : (
+                <div className="border bg-background/50 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse whitespace-nowrap">
+                      <thead>
+                        <tr className="border-b bg-muted/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground">
+                          <th className="px-6 py-4">Email</th>
+                          <th className="px-6 py-4">Role</th>
+                          <th className="px-6 py-4">Joined</th>
+                          <th className="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/50">
+                        {users.map((u) => (
+                          <tr key={u.id} className="hover:bg-muted/10 transition-colors group">
+                            <td className="px-6 py-4 text-sm">
+                              <button
+                                onClick={() => openUserLinks(u)}
+                                className="flex items-center gap-2 text-left transition-colors hover:text-foreground text-foreground"
+                              >
+                                {u.email}
+                                <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all" />
+                              </button>
+                            </td>
+                            <td className="px-6 py-4 text-xs uppercase tracking-widest text-muted-foreground">{u.role}</td>
+                            <td className="px-6 py-4 text-sm text-muted-foreground">
+                              {new Date(u.created_at * 1000).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              {pendingDeleteUser === u.id ? (
+                                <div className="flex items-center justify-end gap-2">
+                                  <button
+                                    onClick={() => setPendingDeleteUser(null)}
+                                    className="text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground px-2 py-1"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    onClick={confirmDeleteUser}
+                                    className="text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive/10 px-2 py-1"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setPendingDeleteUser(u.id)}
+                                  disabled={u.id === me?.id}
+                                  className={cn(
+                                    "p-2 transition-colors",
+                                    u.id === me?.id
+                                      ? "text-muted-foreground/40 cursor-not-allowed"
+                                      : "text-muted-foreground hover:text-destructive"
+                                  )}
+                                  title={u.id === me?.id ? "Cannot delete yourself" : "Delete user"}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                        {users.length === 0 && (
+                          <tr>
+                            <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground text-sm uppercase tracking-widest font-bold">No users found</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )
             )}
           </div>
         </div>

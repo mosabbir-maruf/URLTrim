@@ -27,13 +27,17 @@ export const onRequestGet = async (context: any) => {
   const admin = await authenticateAdmin(context);
   if (!admin) return new Response("Unauthorized", { status: 401 });
 
-  const { env } = context;
+  const { env, request } = context;
+  const url = new URL(request.url);
+  const userId = url.searchParams.get("user_id");
+
   const { results } = await env.DB.prepare(`
     SELECT links.*, users.email 
     FROM links 
     LEFT JOIN users ON links.user_id = users.id 
+    WHERE links.user_id = ? 
     ORDER BY links.created_at DESC
-  `).all();
+  `).bind(userId || admin.sub).all();
 
   return new Response(JSON.stringify({ success: true, links: results }), { headers: { "Content-Type": "application/json" } });
 };
