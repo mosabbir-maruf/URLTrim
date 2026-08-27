@@ -6,6 +6,7 @@ import { AdminFooter } from "@/components/admin-chrome";
 import { SocialIcon } from "@/components/ui/icons";
 import { UrlForm } from "@/components/url-form";
 import { Logo } from "@/components/ui/logo";
+import { HeaderAuth } from "@/components/header-auth";
 
 export default function AdminPage() {
   return (
@@ -16,10 +17,7 @@ export default function AdminPage() {
             <Logo className="w-6 h-6" />
             <span className="text-lg mt-0.5">URLTrim</span>
           </Link>
-          <div className="flex items-center gap-1">
-            <Link href="/dashboard" className={buttonVariants({ variant: "ghost", size: "sm" })}>Dashboard</Link>
-            <Link href="/login" className={buttonVariants({ size: "sm" })}>Log in</Link>
-          </div>
+          <HeaderAuth />
         </nav>
       </header>
       
@@ -70,6 +68,7 @@ export default function AdminPage() {
           </section>
 
           <HowItWorksSection />
+          <LimitsSection />
           <ChangelogSection />
 
           <section className="flex flex-col items-center justify-center px-5 py-24">
@@ -316,5 +315,55 @@ function Feature({
       </h2>
       <p className="mt-2 text-sm text-muted-foreground">{description}</p>
     </div>
+  )
+}
+
+function LimitsSection() {
+  return (
+    <section className="flex flex-col items-center justify-center px-5 py-24 border-b border-border/40">
+      
+      <div className="text-center mb-16">
+        <h2 className="font-mono text-3xl font-bold tracking-tighter uppercase sm:text-4xl">
+          Quotas
+        </h2>
+        <p className="mt-4 text-xs font-mono tracking-wide text-muted-foreground">
+          System limits per identity.
+        </p>
+      </div>
+
+      <div className="w-full max-w-4xl">
+        <div className="grid md:grid-cols-2 gap-4 md:gap-0 relative">
+          
+          <div className="border border-border/40 bg-card/10 p-10 flex flex-col items-center text-center relative z-10 group hover:border-foreground/50 hover:bg-card/20 transition-colors">
+            <h3 className="font-mono text-lg font-bold uppercase mb-2">Anonymous</h3>
+            <p className="font-mono text-5xl font-black text-muted-foreground/10 mb-8 group-hover:text-foreground/30 transition-colors">5<span className="text-xl">/d</span></p>
+            <ul className="flex flex-col gap-4 text-xs font-mono text-muted-foreground mb-10 text-left w-full max-w-[200px] mx-auto">
+              <li className="flex items-center gap-3"><div className="h-1 w-1 bg-muted-foreground rounded-full" /> Random aliases only</li>
+              <li className="flex items-center gap-3"><div className="h-1 w-1 bg-muted-foreground rounded-full" /> IP-based rate limits</li>
+              <li className="flex items-center gap-3"><div className="h-1 w-1 bg-muted-foreground rounded-full" /> No click analytics</li>
+            </ul>
+            <div className="mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-muted-foreground">Default Node</span>
+            </div>
+          </div>
+
+          <div className="border border-border/40 bg-card/10 p-10 flex flex-col items-center text-center relative z-10 md:-ml-px group hover:border-foreground/50 hover:bg-card/20 transition-colors">
+            <h3 className="font-mono text-lg font-bold uppercase mb-2 text-foreground">Registered</h3>
+            <p className="font-mono text-5xl font-black text-muted-foreground/10 mb-8 group-hover:text-foreground/80 transition-colors">50<span className="text-xl">/d</span></p>
+            <ul className="flex flex-col gap-4 text-xs font-mono text-foreground/80 mb-10 text-left w-full max-w-[200px] mx-auto">
+              <li className="flex items-center gap-3"><div className="h-1 w-1 bg-emerald-500 rounded-full" /> Custom aliases</li>
+              <li className="flex items-center gap-3"><div className="h-1 w-1 bg-emerald-500 rounded-full" /> Auth-based limits</li>
+              <li className="flex items-center gap-3"><div className="h-1 w-1 bg-emerald-500 rounded-full" /> Analytics dashboard</li>
+            </ul>
+            <div className="mt-auto w-full max-w-[200px] mx-auto">
+              <Link href="/register" className={buttonVariants({ variant: "outline", className: "w-full uppercase font-bold tracking-[0.2em] text-[10px] bg-background/50 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/50 transition-colors" })}>
+                Initialize
+              </Link>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
   )
 }
