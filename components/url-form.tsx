@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Copy, CheckCircle2, AlertCircle, LoaderCircle, Plus } from "lucide-react";
+import { ArrowRight, Copy, CheckCircle2, AlertCircle, LoaderCircle, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,56 +61,72 @@ export function UrlForm() {
 
   return (
     <div className="w-full space-y-4">
-       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3 max-w-xl mx-auto w-full">
-         <div className="flex flex-col sm:flex-row">
-           <Input
-             type="url"
-             value={url}
-             onChange={(e) => setUrl(e.target.value)}
-             placeholder="Paste your long URL here..."
-             className="flex-1 bg-background/50 backdrop-blur-sm transform-gpu h-12 sm:h-14 px-6 text-sm font-mono border-border/60 rounded-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-border/60 shadow-none transition-all"
-             required
-             disabled={isLoading}
-           />
+       <form onSubmit={handleSubmit} noValidate className="flex flex-col max-w-xl mx-auto w-full">
+         <div className="flex flex-col sm:flex-row border border-border/60 focus-within:ring-1 focus-within:ring-ring focus-within:border-border/60 transition-all bg-background/50 backdrop-blur-sm">
+           {/* Inputs Container */}
+           <div className="flex flex-col flex-1">
+             <Input
+               type="url"
+               value={url}
+               onChange={(e) => setUrl(e.target.value)}
+               placeholder="Paste your long URL here..."
+               className="h-14 sm:h-16 px-6 text-sm font-mono border-0 focus-visible:ring-0 shadow-none rounded-none bg-transparent"
+               required
+               disabled={isLoading}
+             />
+             
+             {showCustom ? (
+               <div className="flex items-center px-6 h-12 bg-muted/20 border-t border-border/60 animate-in fade-in slide-in-from-top-1">
+                 <span className="font-mono text-sm text-muted-foreground select-none">/</span>
+                 <Input
+                   type="text"
+                   value={customCode}
+                   onChange={(e) => setCustomCode(e.target.value)}
+                   placeholder="custom-alias (e.g. my-link)"
+                   className="flex-1 h-full px-3 text-sm font-mono border-0 focus-visible:ring-0 shadow-none rounded-none bg-transparent"
+                   maxLength={30}
+                   disabled={isLoading}
+                   autoFocus
+                 />
+                 <button
+                   type="button"
+                   onClick={() => setCustomCode(Math.random().toString(36).substring(2, 8))}
+                   className="shrink-0 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors ml-2"
+                 >
+                   random
+                 </button>
+                 <button
+                   type="button"
+                   onClick={() => { setShowCustom(false); setCustomCode(""); }}
+                   className="shrink-0 text-muted-foreground hover:text-foreground transition-colors ml-4 p-1"
+                   aria-label="Close custom alias"
+                 >
+                   <X className="w-3.5 h-3.5" />
+                 </button>
+               </div>
+             ) : (
+               <div className="flex items-center px-6 h-10 border-t border-border/60 bg-transparent hover:bg-muted/10 transition-colors">
+                 <button
+                   type="button"
+                   onClick={() => setShowCustom(true)}
+                   className="w-full h-full text-left inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                 >
+                   <Plus className="h-3.5 w-3.5" /> Custom short code
+                 </button>
+               </div>
+             )}
+           </div>
+
+           {/* Submit Button */}
            <Button
              type="submit"
              disabled={isLoading || !url}
-             className="h-12 sm:h-14 w-full sm:w-auto px-8 uppercase font-mono font-bold tracking-widest text-[11px] rounded-none bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50 transition-all shadow-none"
+             className="h-14 sm:h-auto w-full sm:w-36 uppercase font-mono font-bold tracking-widest text-[11px] rounded-none bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50 transition-all shadow-none border-t sm:border-t-0 sm:border-l border-border/60"
            >
              {isLoading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : "Shorten"}
              {!isLoading && <span className="ml-2">→</span>}
            </Button>
          </div>
-         {showCustom ? (
-           <div className="flex items-center gap-2">
-             <span className="font-mono text-sm text-muted-foreground select-none">/</span>
-             <Input
-               type="text"
-               value={customCode}
-               onChange={(e) => setCustomCode(e.target.value)}
-               placeholder="custom-alias (e.g. summer-sale)"
-               className="h-10 px-4 text-sm font-mono bg-background/50 backdrop-blur-sm border-border/60 rounded-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-border/60 shadow-none transition-all"
-               maxLength={30}
-               disabled={isLoading}
-               autoFocus
-             />
-             <button
-               type="button"
-               onClick={() => { setShowCustom(false); setCustomCode(""); }}
-               className="shrink-0 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
-             >
-               random
-             </button>
-           </div>
-         ) : (
-           <button
-             type="button"
-             onClick={() => setShowCustom(true)}
-             className="self-start inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
-           >
-             <Plus className="h-3.5 w-3.5" /> Custom short code
-           </button>
-         )}
        </form>
 
       {error && (
