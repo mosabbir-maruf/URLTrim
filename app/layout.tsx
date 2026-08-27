@@ -1,5 +1,5 @@
 import { Geist_Mono } from "next/font/google"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 
 import "@/app/globals.css"
@@ -7,6 +7,13 @@ import { cn } from "@/lib/utils"
 import { Provider } from "@/components/provider"
 
 const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://urltrim.pages.dev"),

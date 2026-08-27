@@ -62,8 +62,8 @@ export function ThemeControls() {
 export function AdminFooter() {
   return (
     <footer className="border-t border-b mb-8">
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-5 py-3 sm:flex-row border-x px-2">
-        <div className="flex-1 flex justify-start items-center gap-4">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-6 py-6 sm:py-3 sm:flex-row border-x px-4">
+        <div className="flex-1 flex flex-wrap justify-center sm:justify-start items-center gap-4">
           <SocialLink label="X" href="https://x.com/hellomosabbir" icon="x" />
           <SocialLink
             label="Instagram"
@@ -87,11 +87,11 @@ export function AdminFooter() {
           />
         </div>
         
-        <p className="flex flex-1 items-center justify-center gap-1 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-          A sideproject by <a href="https://mosabbir.pages.dev" target="_blank" rel="noreferrer" className="text-foreground font-semibold hover:underline transition-all">Mosabbir Maruf</a>
+        <p className="flex flex-1 items-center justify-center text-center gap-1 font-mono text-[10px] text-muted-foreground uppercase tracking-widest leading-relaxed">
+          A sideproject by <a href="https://mosabbir.pages.dev" target="_blank" rel="noreferrer" className="text-foreground font-semibold hover:underline transition-all block sm:inline">Mosabbir Maruf</a>
         </p>
 
-        <div className="flex flex-1 items-center justify-end gap-6">
+        <div className="flex flex-1 items-center justify-center sm:justify-end gap-6">
           <ThemeControls />
         </div>
       </div>

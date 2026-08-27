@@ -138,19 +138,19 @@ export function UrlForm() {
       {result && (
         <div className="flex flex-col gap-3 p-6 bg-background/80 border border-border/70 text-center animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-xl mx-auto w-full">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Your shortened URL is ready!</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-2 bg-muted/20 p-4 border border-border/50">
             <a
               href={result.shortUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-lg sm:text-2xl font-medium text-foreground hover:underline break-all"
+              className="text-base sm:text-lg font-mono font-medium text-foreground hover:underline truncate w-full text-center sm:text-left"
             >
               {result.shortUrl}
             </a>
             <Button
               onClick={copyToClipboard}
               variant={copied ? "default" : "outline"}
-              className="uppercase font-semibold text-xs tracking-wider h-10 px-4 w-full sm:w-auto"
+              className="uppercase font-semibold text-xs tracking-wider h-10 px-4 shrink-0 w-full sm:w-auto"
             >
               {copied ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
               {copied ? "Copied!" : "Copy"}

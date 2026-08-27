@@ -363,42 +363,42 @@ export default function Dashboard() {
               <button
                 onClick={() => { setCurrentTab("overview"); closeUserLinks(); }}
                 className={cn(
-                  "flex items-center gap-2 px-6 py-4 text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
+                  "flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
                   currentTab === "overview"
                     ? "border-foreground text-foreground bg-background/50"
                     : "border-transparent text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                 )}
               >
-                <LayoutDashboard className="h-4 w-4" /> Overview
+                <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" /> Overview
               </button>
               <button
                 onClick={() => { setCurrentTab("links"); closeUserLinks(); }}
                 className={cn(
-                  "flex items-center gap-2 px-6 py-4 text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
+                  "flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
                   currentTab === "links"
                     ? "border-foreground text-foreground bg-background/50"
                     : "border-transparent text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                 )}
               >
-                <LinkIcon className="h-4 w-4" /> {isAdmin ? "All Links" : "Links"}
+                <LinkIcon className="h-3 w-3 sm:h-4 sm:w-4" /> {isAdmin ? "All Links" : "Links"}
               </button>
               {isAdmin && (
                 <button
                   onClick={() => setCurrentTab("users")}
                   className={cn(
-                    "flex items-center gap-2 px-6 py-4 text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
+                    "flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase transition-colors border-b-2 whitespace-nowrap relative",
                     currentTab === "users"
                       ? "border-foreground text-foreground bg-background/50"
                       : "border-transparent text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                   )}
                 >
-                  <UsersIcon className="h-4 w-4" /> Users
+                  <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4" /> Users
                 </button>
               )}
             </div>
             {currentTab === "links" && (
-              <div className="pr-4">
-                <Button onClick={() => setIsCreating(!isCreating)} className="uppercase font-bold tracking-wider">
+              <div className="pr-2 sm:pr-4 shrink-0">
+                <Button onClick={() => setIsCreating(!isCreating)} className="uppercase font-bold tracking-wider text-[10px] sm:text-xs h-9 sm:h-10 px-3 sm:px-4">
                   <Plus className="w-3 h-3 mr-1" /> New Link
                 </Button>
               </div>

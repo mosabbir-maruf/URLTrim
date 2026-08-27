@@ -36,7 +36,7 @@ export default function AdminPage() {
               <span className="text-muted-foreground/60">MADE SIMPLE.</span>
             </h1>
             
-            <p className="mt-6 max-w-lg text-center font-mono text-sm leading-7 text-muted-foreground/70 z-10">
+            <p className="mt-6 max-w-lg text-center font-mono text-sm leading-7 text-muted-foreground/70 z-10 px-4 sm:px-0">
               Create fast, shareable short URLs in seconds. Built
               <br className="hidden sm:block" />
               on Edge infrastructure for global low-latency
