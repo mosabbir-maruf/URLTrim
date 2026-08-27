@@ -1,31 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, CheckCircle2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminFooter as Footer } from "@/components/admin-chrome";
 import { Logo } from "@/components/ui/logo";
+import { EMAIL_REGEX } from "@/lib/validation";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    const normalizedEmail = email.trim();
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      setError("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizedEmail, password }),
       });
 
       const data = await res.json();
@@ -33,7 +45,7 @@ export default function RegisterPage() {
         throw new Error(data.error || "Registration failed");
       }
 
-      router.push("/login");
+      setSuccessMsg(data.message || "Registration complete! You can now log in.");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -84,7 +96,7 @@ export default function RegisterPage() {
             <div className="relative mt-8 flex w-full flex-col items-center justify-center px-4 z-10" style={{ opacity: 1 }}>
               <div className="w-full max-w-sm">
                 <h3 className="text-center text-xl font-semibold">
-                  Create your account
+                  {successMsg ? "You're all set" : "Create your account"}
                 </h3>
 
                 <div className="mt-8">
@@ -98,44 +110,61 @@ export default function RegisterPage() {
                                 {error}
                               </div>
                             )}
-                            <form className="flex flex-col gap-y-4" onSubmit={handleRegister}>
-                              <div>
-                                <Input
-                                  placeholder="you@example.com"
-                                  type="email"
-                                  value={email}
-                                  onChange={(e) => setEmail(e.target.value)}
-                                  className="mt-2 bg-background/50 backdrop-blur-sm"
-                                  required
-                                />
-                                <Input
-                                  placeholder="Password (min 8 characters)"
-                                  type="password"
-                                  value={password}
-                                  onChange={(e) => setPassword(e.target.value)}
-                                  minLength={8}
-                                  className="mt-4 bg-background/50 backdrop-blur-sm"
-                                  required
-                                />
+                            {successMsg ? (
+                              <div className="flex flex-col items-center gap-4 py-6 text-center">
+                                <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+                                <div>
+                                  <h4 className="text-lg font-semibold">Registration complete</h4>
+                                  <p className="mt-1 text-sm text-muted-foreground">{successMsg}</p>
+                                </div>
+                                <Link href="/login" className={buttonVariants({ size: "sm" })}>
+                                  Continue to login
+                                </Link>
                               </div>
-                              <Button type="submit" disabled={loading} className="mt-2 uppercase font-semibold">
-                                {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : "Sign Up"}
-                              </Button>
-                            </form>
-                            <div className="my-3 flex flex-shrink items-center justify-center gap-2">
-                              <div className="grow basis-0 border-b"></div>
-                              <span className="text-muted-foreground text-xs leading-none font-medium uppercase">
-                                or
-                              </span>
-                              <div className="grow basis-0 border-b"></div>
-                            </div>
+                            ) : (
+                              <>
+                                <form className="flex flex-col gap-y-4" onSubmit={handleRegister} noValidate>
+                                  <div>
+                                    <Input
+                                      placeholder="you@example.com"
+                                      type="email"
+                                      value={email}
+                                      onChange={(e) => setEmail(e.target.value)}
+                                      className="mt-2 bg-background/50 backdrop-blur-sm"
+                                      required
+                                    />
+                                    <Input
+                                      placeholder="Password (min 8 characters)"
+                                      type="password"
+                                      value={password}
+                                      onChange={(e) => setPassword(e.target.value)}
+                                      minLength={8}
+                                      className="mt-4 bg-background/50 backdrop-blur-sm"
+                                      required
+                                    />
+                                  </div>
+                                  <Button type="submit" disabled={loading} className="mt-2 uppercase font-semibold">
+                                    {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : "Sign Up"}
+                                  </Button>
+                                </form>
+                                <div className="my-3 flex flex-shrink items-center justify-center gap-2">
+                                  <div className="grow basis-0 border-b"></div>
+                                  <span className="text-muted-foreground text-xs leading-none font-medium uppercase">
+                                    or
+                                  </span>
+                                  <div className="grow basis-0 border-b"></div>
+                                </div>
+                              </>
+                            )}
                           </div>
 
-                          <div className="mt-2">
-                            <Link href="/login" className={buttonVariants({ variant: "outline", className: "w-full uppercase font-semibold bg-background/50 backdrop-blur-sm" })}>
-                              Log in instead
-                            </Link>
-                          </div>
+                          {!successMsg && (
+                            <div className="mt-2">
+                              <Link href="/login" className={buttonVariants({ variant: "outline", className: "w-full uppercase font-semibold bg-background/50 backdrop-blur-sm" })}>
+                                Log in instead
+                              </Link>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

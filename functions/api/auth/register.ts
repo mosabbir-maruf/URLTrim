@@ -1,8 +1,9 @@
 import { hashPassword } from "../../../lib/jwt";
 import { z } from "zod";
+import { EMAIL_REGEX } from "../../../lib/validation";
 
 const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().regex(EMAIL_REGEX, "Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 

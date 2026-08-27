@@ -47,6 +47,8 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [newUrl, setNewUrl] = useState("");
+  const [newCode, setNewCode] = useState("");
+  const [createError, setCreateError] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<"overview" | "links" | "users">("overview");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
@@ -150,23 +152,26 @@ export default function Dashboard() {
   const handleCreateLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUrl) return;
+    setCreateError(null);
     try {
       const res = await fetch("/api/shorten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: newUrl }),
+        body: JSON.stringify({ url: newUrl, ...(newCode.trim() ? { customCode: newCode.trim() } : {}) }),
         credentials: "include",
       });
       if (res.ok) {
         setNewUrl("");
+        setNewCode("");
         setIsCreating(false);
         fetchLinks();
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to create link");
+        setCreateError(data.error || "Failed to create link");
       }
     } catch (err) {
       console.error(err);
+      setCreateError("Failed to create link");
     }
   };
 
@@ -454,17 +459,29 @@ export default function Dashboard() {
                 {isCreating && (
                   <div className="mb-8 border p-6 bg-background shadow-sm">
                     <h3 className="text-sm font-bold uppercase tracking-widest mb-4">Create New Link</h3>
-                    <form onSubmit={handleCreateLink} className="flex gap-4">
-                      <Input
-                        type="url"
-                        value={newUrl}
-                        onChange={(e) => setNewUrl(e.target.value)}
-                        placeholder="https://example.com"
-                        required
-                        autoFocus
-                      />
-                      <Button type="submit" className="uppercase font-semibold">Shorten</Button>
-                      <Button type="button" variant="outline" onClick={() => setIsCreating(false)} className="uppercase font-semibold">Cancel</Button>
+                    <form onSubmit={handleCreateLink} noValidate className="flex flex-col gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Input
+                          type="url"
+                          value={newUrl}
+                          onChange={(e) => setNewUrl(e.target.value)}
+                          placeholder="https://example.com"
+                          required
+                          autoFocus
+                        />
+                        <Input
+                          type="text"
+                          value={newCode}
+                          onChange={(e) => setNewCode(e.target.value)}
+                          placeholder="Custom code (optional)"
+                          maxLength={30}
+                        />
+                        <Button type="submit" className="uppercase font-semibold">Shorten</Button>
+                        <Button type="button" variant="outline" onClick={() => setIsCreating(false)} className="uppercase font-semibold">Cancel</Button>
+                      </div>
+                      {createError && (
+                        <p className="text-sm text-destructive">{createError}</p>
+                      )}
                     </form>
                   </div>
                 )}

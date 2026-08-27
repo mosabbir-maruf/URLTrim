@@ -1,5 +1,5 @@
 import { urlSchema } from "../../lib/validation";
-import { generateShortCode, RESERVED_ROUTES } from "../../lib/short-code";
+import { generateShortCode, RESERVED_ROUTES, validateCustomCode } from "../../lib/short-code";
 import { verifyJWT } from "../../lib/jwt";
 
 function getCookie(request: Request, name: string): string | null {
@@ -37,30 +37,43 @@ export const onRequestPost = async (context: any) => {
 
     const db = env.DB;
     const originalUrl = result.data.url;
+
+    // Resolve the short code: prefer a custom alias when provided, otherwise auto-generate.
     let code = "";
-    let collision = true;
-    let attempts = 0;
-    const MAX_ATTEMPTS = 5;
+    let isCustom = false;
 
-    while (collision && attempts < MAX_ATTEMPTS) {
-      code = generateShortCode(6);
-      if (RESERVED_ROUTES.has(code.toLowerCase())) {
-        continue;
+    const rawCustom = typeof body.customCode === "string" ? body.customCode.trim() : "";
+    if (rawCustom) {
+      const customError = validateCustomCode(rawCustom);
+      if (customError) {
+        return new Response(JSON.stringify({ success: false, error: customError }), { status: 400, headers: { "Content-Type": "application/json" } });
       }
-      
-      const existing = await db
-        .prepare("SELECT code FROM links WHERE code = ?")
-        .bind(code)
-        .first();
-
-      if (!existing) {
-        collision = false;
+      const existing = await db.prepare("SELECT code FROM links WHERE code = ?").bind(rawCustom).first();
+      if (existing) {
+        return new Response(
+          JSON.stringify({ success: false, error: "This custom code is already taken. Please choose another." }),
+          { status: 409, headers: { "Content-Type": "application/json" } }
+        );
       }
-      attempts++;
-    }
-
-    if (collision) {
-      return new Response(JSON.stringify({ success: false, error: "Failed to generate unique code." }), { status: 500, headers: { "Content-Type": "application/json" } });
+      code = rawCustom;
+      isCustom = true;
+    } else {
+      let collision = true;
+      let attempts = 0;
+      const MAX_ATTEMPTS = 5;
+      while (collision && attempts < MAX_ATTEMPTS) {
+        const candidate = generateShortCode(6);
+        attempts++;
+        if (RESERVED_ROUTES.has(candidate.toLowerCase())) continue;
+        const existing = await db.prepare("SELECT code FROM links WHERE code = ?").bind(candidate).first();
+        if (!existing) {
+          code = candidate;
+          collision = false;
+        }
+      }
+      if (collision) {
+        return new Response(JSON.stringify({ success: false, error: "Failed to generate a unique code. Please try again." }), { status: 500, headers: { "Content-Type": "application/json" } });
+      }
     }
 
     // @ts-ignore
@@ -71,10 +84,21 @@ export const onRequestPost = async (context: any) => {
        expiresAt = createdAt + (body.expiresInDays * 24 * 60 * 60);
     }
 
-    await db.prepare(`
-      INSERT INTO links (id, code, original_url, clicks, created_at, expires_at, is_active, user_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, code, originalUrl, 0, createdAt, expiresAt, 1, userId).run();
+    try {
+      await db.prepare(`
+        INSERT INTO links (id, code, original_url, clicks, created_at, expires_at, is_active, user_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(id, code, originalUrl, 0, createdAt, expiresAt, 1, userId).run();
+    } catch (insertErr: any) {
+      // Final guard against race conditions / duplicates (code column is UNIQUE).
+      if (/unique constraint failed/i.test(insertErr?.message ?? "")) {
+        const msg = isCustom
+          ? "This custom code is already taken. Please choose another."
+          : "Failed to generate a unique code. Please try again.";
+        return new Response(JSON.stringify({ success: false, error: msg }), { status: isCustom ? 409 : 500, headers: { "Content-Type": "application/json" } });
+      }
+      throw insertErr;
+    }
 
     let baseUrl = env.BASE_URL || "https://urltrim.pages.dev";
     // Strip trailing slash if present
