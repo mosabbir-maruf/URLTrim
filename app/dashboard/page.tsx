@@ -179,93 +179,72 @@ export default function Dashboard() {
     }
   };
 
-  const confirmBulkDelete = async () => {
-    if (selectedLinks.length === 0) return;
-    
+  const executeDeleteLinks = async (codes: string[]) => {
+    if (codes.length === 0) return;
     const endpoint = isAdmin ? "/api/admin/links" : "/api/user/links";
-      
     try {
       const res = await fetch(endpoint, {
         method: "DELETE",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ codes: selectedLinks })
+        body: JSON.stringify({ codes })
       });
       if (res.ok) {
-        setLinks(links.filter((l) => !selectedLinks.includes(l.code)));
-        setSelectedLinks([]);
+        setLinks(links => links.filter((l) => !codes.includes(l.code)));
+        setSelectedLinks(prev => prev.filter(c => !codes.includes(c)));
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setPendingBulkDeleteLinks(false);
     }
   };
 
+  const confirmBulkDelete = async () => {
+    await executeDeleteLinks(selectedLinks);
+    setPendingBulkDeleteLinks(false);
+  };
+
   const confirmDelete = async () => {
-    if (!pendingDelete) return;
-    const endpoint = isAdmin
-      ? `/api/admin/links?code=${pendingDelete}`
-      : `/api/user/links?code=${pendingDelete}`;
-    try {
-      const res = await fetch(endpoint, { method: "DELETE", credentials: "include" });
-      if (res.ok) {
-        setLinks(links.filter((l) => l.code !== pendingDelete));
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
+    if (pendingDelete) {
+      await executeDeleteLinks([pendingDelete]);
       setPendingDelete(null);
     }
   };
 
-  const confirmBulkDeleteUsers = async () => {
-    if (selectedUsers.length === 0) return;
-    if (selectedUsers.includes(me?.id as string)) {
+  const executeDeleteUsers = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    if (ids.includes(me?.id as string)) {
       alert("You cannot delete yourself.");
       return;
     }
-    
     try {
       const res = await fetch("/api/admin/users", {
         method: "DELETE",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedUsers })
+        body: JSON.stringify({ ids })
       });
       if (res.ok) {
-        const deletedEmails = users.filter(u => selectedUsers.includes(u.id)).map(u => u.email);
-        setUsers(users.filter((u) => !selectedUsers.includes(u.id)));
-        setLinks(links.filter((l) => !l.email || !deletedEmails.includes(l.email)));
-        setSelectedUsers([]);
+        const deletedEmails = users.filter(u => ids.includes(u.id)).map(u => u.email);
+        setUsers(users => users.filter(u => !ids.includes(u.id)));
+        setLinks(links => links.filter(l => !l.email || !deletedEmails.includes(l.email)));
+        setSelectedUsers(prev => prev.filter(id => !ids.includes(id)));
       } else {
         const d = await res.json().catch(() => ({}));
         alert(d.error || "Failed to delete users");
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setPendingBulkDeleteUsers(false);
     }
   };
 
+  const confirmBulkDeleteUsers = async () => {
+    await executeDeleteUsers(selectedUsers);
+    setPendingBulkDeleteUsers(false);
+  };
+
   const confirmDeleteUser = async () => {
-    if (!pendingDeleteUser) return;
-    try {
-      const res = await fetch(`/api/admin/users?id=${pendingDeleteUser}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        const deletedEmail = users.find(u => u.id === pendingDeleteUser)?.email;
-        setUsers(users.filter((u) => u.id !== pendingDeleteUser));
-        if (deletedEmail) {
-          setLinks(links.filter((l) => l.email !== deletedEmail));
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
+    if (pendingDeleteUser) {
+      await executeDeleteUsers([pendingDeleteUser]);
       setPendingDeleteUser(null);
     }
   };
