@@ -1,27 +1,4 @@
-import { verifyJWT } from "../../../lib/jwt";
-
-function getCookie(request: Request, name: string): string | null {
-  const cookieHeader = request.headers.get("Cookie");
-  if (!cookieHeader) return null;
-  const match = cookieHeader.match(new RegExp(`(^| )${name}=([^;]+)`));
-  if (match) return match[2];
-  return null;
-}
-
-async function authenticateAdmin(context: any) {
-  const { request, env } = context;
-  const token = getCookie(request, "auth_token");
-  if (!token) return null;
-  const secret = env.JWT_SECRET || "default-secret-please-change";
-  const decoded = await verifyJWT(token, secret);
-  if (!decoded || !decoded.sub) return null;
-
-  // Real-time role verification from DB for strict security
-  const user = await env.DB.prepare("SELECT role FROM users WHERE id = ?").bind(decoded.sub).first();
-  if (!user || user.role !== "admin") return null;
-
-  return decoded; // Return JWT payload (which includes sub)
-}
+import { authenticateAdmin } from "../../../lib/jwt";
 
 export const onRequestGet = async (context: any) => {
   const admin = await authenticateAdmin(context);

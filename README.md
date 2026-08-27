@@ -3,10 +3,10 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="public/logo-light.png" />
   <source media="(prefers-color-scheme: light)" srcset="public/logo-dark.png" />
-  <img alt="urltrim Logo" src="public/logo-dark.png" width="60" />
+  <img alt="URLTrim Logo" src="public/logo-dark.png" width="60" />
 </picture>
 
-<h1>urltrim</h1>
+<h1>URLTrim</h1>
 
 <p>Edge-resolved URL shortener — millisecond redirects, globally.</p>
 
@@ -22,7 +22,7 @@
 
 ## 📸 Preview
 
-![urltrim Mockup](public/mockup.png)
+![URLTrim Mockup](public/mockup.png)
 
 ## 🚀 Features
 
@@ -36,7 +36,7 @@
 ## 📁 File Structure
 
 ```text
-urltrim/
+URLTrim/
 ├── app/                          # Next.js App Router (UI)
 │   ├── dashboard/                # Dashboard for authenticated users
 │   ├── login/                    # Login page
@@ -118,10 +118,13 @@ ADMIN_EMAILS="your_email@example.com"
 
 # Resend (Email Verification)
 RESEND_API_KEY="re_your_resend_api_key"
-RESEND_FROM_EMAIL="urltrim <noreply@yourdomain.com>"
+RESEND_FROM_EMAIL="URLTrim <noreply@yourdomain.com>"
 
 # Domain Configuration
 BASE_URL="https://urltrim.pages.dev"
+
+# Analytics (Optional)
+NEXT_PUBLIC_GA_ID="G-XXXXXXXXXX"
 ```
 
 Generate strong random values for `JWT_SECRET` and `PASSWORD_SALT` (each should be a unique, high-entropy string):

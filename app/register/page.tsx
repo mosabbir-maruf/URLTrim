@@ -59,7 +59,7 @@ export default function RegisterPage() {
         <nav className="flex h-14 items-center justify-between px-2 md:h-12">
             <Link href="/" className="-ml-2 flex h-10 items-center justify-center gap-1.5 px-4 transition-colors hover:bg-muted font-bold tracking-tight">
               <Logo className="w-6 h-6" />
-              <span className="text-lg mt-0.5">urltrim</span>
+              <span className="text-lg mt-0.5">URLTrim</span>
             </Link>
           <div className="flex items-center gap-1">
             <Link href="/" className={buttonVariants({ variant: "ghost", size: "sm" })}>

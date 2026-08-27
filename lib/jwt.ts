@@ -107,3 +107,14 @@ export async function authenticate(context: any) {
   const secret = env.JWT_SECRET || "default-secret-please-change";
   return await verifyJWT(token, secret);
 }
+
+export async function authenticateAdmin(context: any) {
+  const decoded = await authenticate(context);
+  if (!decoded || !decoded.sub) return null;
+  
+  // Real-time role verification from DB for strict security
+  const user = await context.env.DB.prepare("SELECT role FROM users WHERE id = ?").bind(decoded.sub).first();
+  if (!user || user.role !== "admin") return null;
+  
+  return decoded;
+}

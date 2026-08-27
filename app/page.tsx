@@ -14,7 +14,7 @@ export default function AdminPage() {
         <nav className="flex h-14 items-center justify-between px-2 md:h-12">
           <Link href="/" className="-ml-2 flex h-10 items-center justify-center gap-1.5 px-4 transition-colors hover:bg-muted font-bold tracking-tight">
             <Logo className="w-6 h-6" />
-            <span className="text-lg mt-0.5">urltrim</span>
+            <span className="text-lg mt-0.5">URLTrim</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/dashboard" className={buttonVariants({ variant: "ghost", size: "sm" })}>Dashboard</Link>
@@ -237,7 +237,7 @@ function ChangelogSection() {
   const logs = [
     { version: "v1.8.0", date: "Aug 26, 2026", text: "Complete decoupling and native Cloudflare Edge integration." },
     { version: "v1.4.0", date: "Last week", text: "Introduced user dashboards, JWT authentication, and analytics." },
-    { version: "v1.0.0", date: "Initial Release", text: "First public release of the urltrim engine." },
+    { version: "v1.0.0", date: "Initial Release", text: "First public release of the URLTrim engine." },
   ]
   return (
     <section className="flex flex-col items-center justify-center px-5 py-24 border-b border-border/40">
