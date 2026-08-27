@@ -39,7 +39,7 @@ export const onRequestPost = async (context: any) => {
           .first();
         const count = (result?.count as number) || 0;
         if (count >= 5) {
-          return new Response(JSON.stringify({ success: false, error: "You've reached the guest limit of 5 links per day. Please login for better short links." }), { status: 429, headers: { "Content-Type": "application/json" } });
+          return new Response(JSON.stringify({ success: false, error: "You've reached the daily guest limit (5 links). Please log in or create a free account to continue shortening links." }), { status: 429, headers: { "Content-Type": "application/json" } });
         }
       } catch (e) {
         // If the column doesn't exist yet, we silently skip the guest rate limit until migration runs
@@ -51,7 +51,7 @@ export const onRequestPost = async (context: any) => {
         .first();
       const count = (result?.count as number) || 0;
       if (count >= 50) {
-        return new Response(JSON.stringify({ success: false, error: "You've reached your daily limit of 50 links. Please try again tomorrow." }), { status: 429, headers: { "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ success: false, error: "You've reached the daily limit for your account (50 links). Please try again tomorrow." }), { status: 429, headers: { "Content-Type": "application/json" } });
       }
     }
 
