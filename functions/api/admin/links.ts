@@ -61,17 +61,33 @@ export const onRequestDelete = async (context: any) => {
   if (!admin) return new Response("Unauthorized", { status: 401 });
 
   const { request, env } = context;
-  const url = new URL(request.url);
-  const codes = url.searchParams.getAll("code");
+  
+  let codes: string[] = [];
+  try {
+    const body = await request.json();
+    codes = body.codes || [];
+  } catch (e) {
+    // Fallback to query params
+    const url = new URL(request.url);
+    const codeParam = url.searchParams.get("code");
+    if (codeParam) codes = [codeParam];
+  }
 
   if (!codes || codes.length === 0) return new Response("Missing code", { status: 400 });
 
-  const placeholders = codes.map(() => '?').join(',');
-  const result = await env.DB.prepare(`DELETE FROM links WHERE code IN (${placeholders})`).bind(...codes).run();
+  const chunkSize = 100;
+  let totalDeleted = 0;
 
-  if (result.meta.changes === 0) {
+  for (let i = 0; i < codes.length; i += chunkSize) {
+    const chunk = codes.slice(i, i + chunkSize);
+    const placeholders = chunk.map(() => '?').join(',');
+    const result = await env.DB.prepare(`DELETE FROM links WHERE code IN (${placeholders})`).bind(...chunk).run();
+    totalDeleted += result.meta.changes;
+  }
+
+  if (totalDeleted === 0) {
     return new Response(JSON.stringify({ success: false, error: "Links not found" }), { status: 404 });
   }
 
-  return new Response(JSON.stringify({ success: true, deleted: result.meta.changes }), { headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ success: true, deleted: totalDeleted }), { headers: { "Content-Type": "application/json" } });
 };

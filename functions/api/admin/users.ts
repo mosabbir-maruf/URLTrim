@@ -15,8 +15,17 @@ export const onRequestDelete = async (context: any) => {
   if (!admin) return new Response("Unauthorized", { status: 401 });
 
   const { request, env } = context;
-  const url = new URL(request.url);
-  const ids = url.searchParams.getAll("id");
+  
+  let ids: string[] = [];
+  try {
+    const body = await request.json();
+    ids = body.ids || [];
+  } catch (e) {
+    // Fallback to query params
+    const url = new URL(request.url);
+    const idParam = url.searchParams.get("id");
+    if (idParam) ids = [idParam];
+  }
 
   if (!ids || ids.length === 0) return new Response("Missing id", { status: 400 });
 
@@ -27,17 +36,25 @@ export const onRequestDelete = async (context: any) => {
     return new Response(JSON.stringify({ success: false, error: "Cannot delete yourself" }), { status: 400 });
   }
 
-  const placeholders = validIds.map(() => '?').join(',');
+  // Chunking to prevent SQLite max variable limits (usually 999)
+  const chunkSize = 100;
+  let totalDeleted = 0;
 
-  // Delete all links owned by these users
-  await env.DB.prepare(`DELETE FROM links WHERE user_id IN (${placeholders})`).bind(...validIds).run();
-  
-  // Delete users
-  const result = await env.DB.prepare(`DELETE FROM users WHERE id IN (${placeholders})`).bind(...validIds).run();
+  for (let i = 0; i < validIds.length; i += chunkSize) {
+    const chunk = validIds.slice(i, i + chunkSize);
+    const placeholders = chunk.map(() => '?').join(',');
 
-  if (result.meta.changes === 0) {
+    // Delete all links owned by these users
+    await env.DB.prepare(`DELETE FROM links WHERE user_id IN (${placeholders})`).bind(...chunk).run();
+    
+    // Delete users
+    const result = await env.DB.prepare(`DELETE FROM users WHERE id IN (${placeholders})`).bind(...chunk).run();
+    totalDeleted += result.meta.changes;
+  }
+
+  if (totalDeleted === 0) {
     return new Response(JSON.stringify({ success: false, error: "Users not found" }), { status: 404 });
   }
 
-  return new Response(JSON.stringify({ success: true, deleted: result.meta.changes }), { headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ success: true, deleted: totalDeleted }), { headers: { "Content-Type": "application/json" } });
 };

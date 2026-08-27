@@ -181,15 +181,15 @@ export default function Dashboard() {
     if (selectedLinks.length === 0) return;
     if (!window.confirm(`Are you sure you want to permanently delete ${selectedLinks.length} selected links?`)) return;
     
-    const params = new URLSearchParams();
-    selectedLinks.forEach(code => params.append("code", code));
-    
-    const endpoint = isAdmin
-      ? `/api/admin/links?${params.toString()}`
-      : `/api/user/links?${params.toString()}`;
+    const endpoint = isAdmin ? "/api/admin/links" : "/api/user/links";
       
     try {
-      const res = await fetch(endpoint, { method: "DELETE", credentials: "include" });
+      const res = await fetch(endpoint, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ codes: selectedLinks })
+      });
       if (res.ok) {
         setLinks(links.filter((l) => !selectedLinks.includes(l.code)));
         setSelectedLinks([]);
@@ -224,11 +224,13 @@ export default function Dashboard() {
     }
     if (!window.confirm(`Are you sure you want to permanently delete ${selectedUsers.length} selected users and all their links?`)) return;
     
-    const params = new URLSearchParams();
-    selectedUsers.forEach(id => params.append("id", id));
-      
     try {
-      const res = await fetch(`/api/admin/users?${params.toString()}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedUsers })
+      });
       if (res.ok) {
         setUsers(users.filter((u) => !selectedUsers.includes(u.id)));
         setSelectedUsers([]);
