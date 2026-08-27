@@ -391,7 +391,7 @@ export default function Dashboard() {
                 </button>
               )}
             </div>
-            {isAdmin && currentTab === "links" && (
+            {currentTab === "links" && (
               <div className="pr-4">
                 <Button onClick={() => setIsCreating(!isCreating)} className="uppercase font-bold tracking-wider">
                   <Plus className="w-3 h-3 mr-1" /> New Link
