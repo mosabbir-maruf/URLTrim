@@ -34,11 +34,7 @@ export default function LoginPage() {
         throw new Error(data.error || "Login failed");
       }
 
-      if (data.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push("/dashboard");
       router.refresh();
     } catch (err: any) {
       setError(err.message);

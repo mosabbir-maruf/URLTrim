@@ -8,13 +8,32 @@ export const onRequestGet = async (context: any) => {
   const url = new URL(request.url);
   const userId = url.searchParams.get("user_id");
 
-  const { results } = await env.DB.prepare(`
-    SELECT links.*, users.email 
-    FROM links 
-    LEFT JOIN users ON links.user_id = users.id 
-    WHERE links.user_id = ? 
-    ORDER BY links.created_at DESC
-  `).bind(userId || admin.sub).all();
+  let query: string;
+  let bindings: string[];
+
+  if (userId) {
+    query = `
+      SELECT links.*, users.email 
+      FROM links 
+      LEFT JOIN users ON links.user_id = users.id 
+      WHERE links.user_id = ? 
+      ORDER BY links.created_at DESC
+    `;
+    bindings = [userId];
+  } else {
+    query = `
+      SELECT links.*, users.email 
+      FROM links 
+      LEFT JOIN users ON links.user_id = users.id 
+      ORDER BY links.created_at DESC
+    `;
+    bindings = [];
+  }
+
+  const stmt = bindings.length
+    ? env.DB.prepare(query).bind(...bindings)
+    : env.DB.prepare(query);
+  const { results } = await stmt.all();
 
   return new Response(JSON.stringify({ success: true, links: results }), { headers: { "Content-Type": "application/json" } });
 };

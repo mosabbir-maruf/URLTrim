@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
-import { ArrowUp, Heart, Moon, Sun } from "lucide-react"
+import { ArrowUp, Moon, Sun } from "lucide-react"
 import { SocialIcon } from "./ui/icons"
 
 

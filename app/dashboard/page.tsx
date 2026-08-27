@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   LoaderCircle,
   Trash2,
-  LogOut,
   Copy,
   ExternalLink,
   Link as LinkIcon,
@@ -244,10 +243,12 @@ export default function Dashboard() {
   };
 
   const copyToClipboard = (code: string) => {
-    navigator.clipboard.writeText(`https://urltrim.pages.dev/${code}`);
+    navigator.clipboard.writeText(`${window.location.origin}/${code}`);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
+
+  const totalClicks = useMemo(() => links.reduce((sum, link) => sum + link.clicks, 0), [links]);
 
   if (isLoading) {
     return (
@@ -256,8 +257,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0);
 
   const renderLinksTable = (showOwner: boolean) => (
     <div className="overflow-x-auto">

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { MessageSquare, Briefcase, LayoutDashboard, FolderKanban, Activity, Settings, Terminal, Plus, Trash2, Globe } from "lucide-react"
+import { Globe } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { Marquee } from "@/components/ui/marquee"
 import { AdminFooter } from "@/components/admin-chrome";

@@ -13,6 +13,9 @@ export const onRequestGet = async (context: any) => {
   }
 
   try {
+    let baseUrl = env.BASE_URL || "https://urltrim.pages.dev";
+    if (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1);
+
     const user = await env.DB
       .prepare("SELECT id, is_verified FROM users WHERE verification_token = ?")
       .bind(token)
@@ -23,7 +26,7 @@ export const onRequestGet = async (context: any) => {
     }
 
     if (user.is_verified === 1) {
-      return Response.redirect(`${env.BASE_URL || "https://urltrim.pages.dev"}/login?verified=already`, 302);
+      return Response.redirect(`${baseUrl}/login?verified=already`, 302);
     }
 
     await env.DB
@@ -31,7 +34,7 @@ export const onRequestGet = async (context: any) => {
       .bind(user.id)
       .run();
 
-    return Response.redirect(`${env.BASE_URL || "https://urltrim.pages.dev"}/login?verified=true`, 302);
+    return Response.redirect(`${baseUrl}/login?verified=true`, 302);
   } catch (error: any) {
     console.error("Verify error:", error);
     return new Response("Internal Server Error", { status: 500 });

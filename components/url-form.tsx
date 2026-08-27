@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Copy, CheckCircle2, AlertCircle, LoaderCircle, Plus, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Copy, CheckCircle2, AlertCircle, LoaderCircle, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -130,28 +129,28 @@ export function UrlForm() {
        </form>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20 text-center justify-center">
+        <div className="flex flex-col sm:flex-row items-center gap-3 p-4 bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20 text-center justify-center max-w-xl mx-auto w-full">
           <AlertCircle className="w-4 h-4 shrink-0" />
-          <p>{error}</p>
+          <p className="break-words">{error}</p>
         </div>
       )}
 
       {result && (
-        <div className="flex flex-col gap-3 p-6 bg-background/80 border border-border/70 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex flex-col gap-3 p-6 bg-background/80 border border-border/70 text-center animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-xl mx-auto w-full">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Your shortened URL is ready!</p>
-          <div className="flex items-center justify-center gap-4 mt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-2">
             <a
               href={result.shortUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-2xl font-medium text-foreground hover:underline"
+              className="text-lg sm:text-2xl font-medium text-foreground hover:underline break-all"
             >
               {result.shortUrl}
             </a>
             <Button
               onClick={copyToClipboard}
               variant={copied ? "default" : "outline"}
-              className="uppercase font-semibold text-xs tracking-wider h-10 px-4"
+              className="uppercase font-semibold text-xs tracking-wider h-10 px-4 w-full sm:w-auto"
             >
               {copied ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
               {copied ? "Copied!" : "Copy"}

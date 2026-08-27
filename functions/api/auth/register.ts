@@ -52,7 +52,8 @@ export const onRequestPost = async (context: any) => {
       "INSERT INTO users (id, email, password_hash, role, created_at, is_verified, verification_token) VALUES (?, ?, ?, ?, ?, ?, ?)"
     ).bind(id, email, hashedPassword, role, createdAt, isVerified, verifyToken).run();
     if (resendApiKey) {
-      const baseUrl = env.BASE_URL || "https://urltrim.pages.dev";
+      let baseUrl = env.BASE_URL || "https://urltrim.pages.dev";
+      if (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1);
       const verifyLink = `${baseUrl}/api/auth/verify?token=${verifyToken}`;
       
       const emailHtml = `

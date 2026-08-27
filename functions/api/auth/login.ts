@@ -1,8 +1,9 @@
 import { hashPassword, signJWT } from "../../../lib/jwt";
 import { z } from "zod";
+import { EMAIL_REGEX } from "../../../lib/validation";
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().regex(EMAIL_REGEX, "Please enter a valid email address"),
   password: z.string(),
 });
 
