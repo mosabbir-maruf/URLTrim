@@ -324,83 +324,82 @@ function LimitsSection() {
       <div className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center">
         
         {/* Left Card: Guest */}
-        <div className="w-full md:w-1/2 border border-border/40 bg-background p-10 flex flex-col z-0">
-          <h3 className="font-mono text-sm text-muted-foreground mb-4">Guest Mode</h3>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-6xl font-black tracking-tighter">5</span>
+        <div className="w-full max-w-md border border-border/40 bg-background p-10 sm:p-12 flex flex-col z-0">
+          <h3 className="font-mono text-sm text-muted-foreground mb-6">Guest Mode</h3>
+          <div className="flex items-baseline gap-2 mb-6">
+            <span className="text-7xl font-bold tracking-tighter">5</span>
             <span className="font-mono text-muted-foreground">/ Day</span>
           </div>
-          <p className="font-mono text-xs leading-relaxed text-muted-foreground mb-8 min-h-[48px]">
+          <p className="font-mono text-sm leading-relaxed text-muted-foreground mb-8">
             Perfect for quick, one-off short links without needing to create an account.
           </p>
           
-          <div className="w-full mb-8">
-            <a href="#" className="flex w-full items-center justify-center border border-border/50 py-3 text-xs font-mono font-bold uppercase tracking-widest hover:bg-muted/50 transition-colors">
+          <div className="w-full mb-10">
+            <Link href="#url-form" className="flex w-full items-center justify-center border border-border/50 py-4 text-xs font-mono font-bold uppercase tracking-widest hover:bg-muted/50 transition-colors">
               Start Shortening
-            </a>
+            </Link>
           </div>
 
-          <div className="border-t border-border/40 pt-8 flex flex-col">
-            <span className="font-mono text-xs text-muted-foreground mb-4">Included</span>
-            <ul className="flex flex-col gap-4 text-xs font-mono mb-8">
+          <div className="border-t border-border/40 pt-10 flex flex-col">
+            <span className="font-mono text-xs text-muted-foreground mb-6">Included</span>
+            <ul className="flex flex-col gap-5 text-sm font-mono text-foreground mb-10">
               <li className="flex items-start gap-3">
-                <span className="text-emerald-500 font-bold">✓</span>
+                <span className="text-emerald-500 font-bold mt-0.5">✓</span>
                 <span>Random short aliases</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-emerald-500 font-bold">✓</span>
+                <span className="text-emerald-500 font-bold mt-0.5">✓</span>
                 <span>Global edge resolution</span>
               </li>
-              <li className="flex items-start gap-3 opacity-50">
-                <span className="text-muted-foreground font-bold">✗</span>
-                <span className="line-through">Click analytics</span>
-              </li>
             </ul>
-            <p className="font-mono text-[10px] text-muted-foreground/60 leading-relaxed mt-auto">
+            <p className="font-mono text-[11px] text-muted-foreground/60 leading-relaxed mt-auto">
               *Guest limits are tied to your IP address and may be subject to stricter rate limiting.
             </p>
           </div>
         </div>
 
         {/* Right Card: Registered */}
-        <div className="w-full md:w-[55%] border border-border/40 bg-muted/10 backdrop-blur-md p-12 shadow-2xl shadow-black/20 z-10 md:-ml-8 mt-8 md:mt-0 flex flex-col">
-          <h3 className="font-mono text-sm text-muted-foreground mb-4">Registered Account</h3>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-7xl font-black tracking-tighter">50</span>
+        <div className="w-full max-w-[520px] border border-border/40 bg-muted/30 backdrop-blur-md p-10 sm:p-14 shadow-2xl shadow-black/10 dark:shadow-black/50 z-10 md:-ml-12 mt-8 md:mt-0 flex flex-col">
+          <h3 className="font-mono text-sm text-muted-foreground mb-6">Registered Account</h3>
+          <div className="flex items-baseline gap-2 mb-6">
+            <span className="text-8xl font-bold tracking-tighter">50</span>
             <span className="font-mono text-muted-foreground">/ Day</span>
           </div>
-          <p className="font-mono text-xs leading-relaxed text-muted-foreground mb-8 min-h-[48px]">
+          <p className="font-mono text-sm leading-relaxed text-muted-foreground mb-8">
             Designed for power users who need custom branding and deep analytics for their links.
           </p>
           
-          <div className="w-full mb-8">
-            <Link href="/register" className="flex w-full items-center justify-center bg-foreground text-background py-4 text-xs font-mono font-bold uppercase tracking-widest hover:bg-foreground/90 transition-colors">
-              Create Free Account
+          <div className="w-full mb-10 flex flex-col sm:flex-row gap-4">
+            <Link href="/register" className="flex flex-1 items-center justify-center bg-foreground text-background py-4 text-xs font-mono font-bold uppercase tracking-widest hover:bg-foreground/90 transition-colors">
+              Create Account
+            </Link>
+            <Link href="/login" className="flex flex-1 items-center justify-center border border-border/50 bg-background py-4 text-xs font-mono font-bold uppercase tracking-widest hover:bg-muted/50 transition-colors">
+              Log In
             </Link>
           </div>
 
-          <div className="border-t border-border/40 pt-8 flex flex-col">
-            <span className="font-mono text-xs text-muted-foreground mb-4">What&apos;s included:</span>
-            <ul className="flex flex-col gap-4 text-xs font-mono mb-8">
+          <div className="border-t border-border/40 pt-10 flex flex-col">
+            <span className="font-mono text-xs text-muted-foreground mb-6">What&apos;s included:</span>
+            <ul className="flex flex-col gap-5 text-sm font-mono text-foreground mb-10">
               <li className="flex items-start gap-3">
-                <span className="text-emerald-500 font-bold">✓</span>
+                <span className="text-emerald-500 font-bold mt-0.5">✓</span>
                 <span>Everything in Guest</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-emerald-500 font-bold">✓</span>
+                <span className="text-emerald-500 font-bold mt-0.5">✓</span>
                 <span>Custom branded aliases (e.g. /github)</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-emerald-500 font-bold">✓</span>
+                <span className="text-emerald-500 font-bold mt-0.5">✓</span>
                 <span>Comprehensive click analytics</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-emerald-500 font-bold">✓</span>
+                <span className="text-emerald-500 font-bold mt-0.5">✓</span>
                 <span>Admin dashboard to manage links</span>
               </li>
             </ul>
-            <p className="font-mono text-[10px] text-muted-foreground/60 leading-relaxed mt-auto">
-              *Registered accounts are 100% free. Limits reset daily at midnight UTC.
+            <p className="font-mono text-[11px] text-muted-foreground/60 leading-relaxed mt-auto">
+              *Registered accounts are completely free. Limits reset automatically every day at midnight UTC.
             </p>
           </div>
         </div>
