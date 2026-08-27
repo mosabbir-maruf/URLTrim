@@ -307,7 +307,7 @@ export default function Dashboard() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all">
                     {isAdmin && (
                       <button onClick={() => openEdit(link)} className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Edit">
                         <Pencil className="w-4 h-4" />
@@ -547,7 +547,7 @@ export default function Dashboard() {
                                 className="flex items-center gap-2 text-left transition-colors hover:text-foreground text-foreground"
                               >
                                 {u.email}
-                                <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all" />
+                                <ExternalLink className="w-3 h-3 text-muted-foreground opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all" />
                               </button>
                             </td>
                             <td className="px-6 py-4 text-xs uppercase tracking-widest text-muted-foreground">{u.role}</td>
