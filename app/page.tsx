@@ -320,7 +320,7 @@ function Feature({
 
 function LimitsSection() {
   return (
-    <section className="flex flex-col items-center justify-center px-5 py-24 border-b border-border/40 bg-background/50">
+    <section className="flex flex-col items-center justify-center px-4 sm:px-5 py-24 border-b border-border/40 bg-background/50">
       <div className="text-center mb-16">
         <h2 className="font-mono text-3xl font-bold tracking-tighter uppercase sm:text-4xl">
           Quotas
@@ -333,7 +333,7 @@ function LimitsSection() {
       <div className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-center">
         
         {/* Left Card: Guest */}
-        <div className="w-full max-w-[320px] border border-border/40 bg-background p-6 sm:p-8 flex flex-col z-0">
+        <div className="w-full max-w-[340px] md:max-w-[320px] border border-border/40 bg-background p-6 sm:p-8 pb-12 md:pb-8 flex flex-col z-0 relative">
           <h3 className="font-mono text-xs text-muted-foreground mb-4 uppercase tracking-widest">Guest Mode</h3>
           <div className="flex items-baseline gap-1.5 mb-4">
             <span className="text-5xl font-bold tracking-tighter">5</span>
@@ -368,7 +368,7 @@ function LimitsSection() {
         </div>
 
         {/* Right Card: Registered */}
-        <div className="w-full max-w-[380px] border border-border/40 bg-muted/30 backdrop-blur-md p-8 sm:p-10 shadow-xl shadow-black/10 dark:shadow-black/50 z-10 md:-ml-6 mt-6 md:mt-0 flex flex-col">
+        <div className="w-full max-w-[380px] border border-border/40 bg-muted/30 backdrop-blur-md p-6 sm:p-10 shadow-xl shadow-black/10 dark:shadow-black/50 z-10 -mt-6 md:mt-0 md:-ml-6 flex flex-col relative">
           <h3 className="font-mono text-xs text-muted-foreground mb-4 uppercase tracking-widest">Registered</h3>
           <div className="flex items-baseline gap-1.5 mb-4">
             <span className="text-6xl font-bold tracking-tighter">50</span>
